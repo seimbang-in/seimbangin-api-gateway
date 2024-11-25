@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `age` int DEFAULT 17 NOT NULL;

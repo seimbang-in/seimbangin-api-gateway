@@ -1,0 +1,104 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1730026808162,
+      "tag": "0000_smart_electro",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1730029899079,
+      "tag": "0001_empty_the_liberteens",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1730192125937,
+      "tag": "0002_huge_lord_tyger",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1730484569834,
+      "tag": "0003_aromatic_tiger_shark",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1730515775519,
+      "tag": "0004_right_revanche",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1730820921094,
+      "tag": "0005_nifty_talisman",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1730917814305,
+      "tag": "0006_brown_magdalene",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1730917838373,
+      "tag": "0007_complete_hardball",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1730919062817,
+      "tag": "0008_good_moondragon",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1730923540596,
+      "tag": "0009_safe_bill_hollister",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1730927902235,
+      "tag": "0010_broad_wallow",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1730928177268,
+      "tag": "0011_typical_moira_mactaggert",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1730929314704,
+      "tag": "0012_groovy_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1730931009509,
+      "tag": "0013_chemical_veda",
+      "breakpoints": true
+    }
+  ]
+}

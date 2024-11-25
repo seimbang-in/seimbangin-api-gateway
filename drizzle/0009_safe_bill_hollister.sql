@@ -1,0 +1,1 @@
+ALTER TABLE `transactions` MODIFY COLUMN `category` enum('food','transportation','utilities','entertainment','shopping','healthcare','education','others') NOT NULL;

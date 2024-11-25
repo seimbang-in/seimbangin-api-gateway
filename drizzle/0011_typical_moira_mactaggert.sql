@@ -1,0 +1,1 @@
+ALTER TABLE `users` MODIFY COLUMN `balance` decimal(16,2) NOT NULL DEFAULT '0.0';

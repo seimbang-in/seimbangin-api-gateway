@@ -1,0 +1,19 @@
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=db_seimbangin
+DB_USER=ryo
+# klo bisa jangan kosong
+DB_PASSWORD=123
+
+
+GOOGLE_CLOUD_CREDENTIALS=
+BUCKET_NAME=
+
+#bebas isi apa aja 
+JWT_SECRET=
+
+
+
+
+
