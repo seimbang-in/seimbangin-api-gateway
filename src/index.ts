@@ -5,10 +5,13 @@ import path from "path";
 import userRouter from "./routes/user.routes";
 import transactionRouter from "./routes/transaction.routes";
 import financialProfileRouter from "./routes/financialProfile.routes";
+import authDevRouter from "./routes/dev/authDev.routes";
+import cors from "cors";
 
-// Initialize express
+// intialize express
 const app: Express = express();
-const port = parseInt(process.env.PORT || "8080", 10);
+
+app.use(cors());
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -17,6 +20,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 app.use("/auth", authRouter);
+app.use("/dev/auth", authDevRouter);
 app.use("/user", userRouter);
 app.use("/transaction", transactionRouter);
 app.use("/financial-profile", financialProfileRouter);
@@ -36,16 +40,8 @@ app.get("/protected", authenticateJWT, (req: Request, res: Response) => {
   });
 });
 
-// Ensure server listens on the correct port and IP
-app.listen(port, "0.0.0.0", () => {
-  console.log(`🎉 Server is running on http://0.0.0.0:${port}`);
-});
-
-// Handle uncaught errors
-process.on("uncaughtException", (err) => {
-  console.error("Uncaught Exception:", err);
-});
-
-process.on("unhandledRejection", (reason) => {
-  console.error("Unhandled Rejection:", reason);
+app.listen(3000, () => {
+  console.log(
+    "🎉 Server Expressnya dah jalan ya beb! 🚀 disini yhh http://localhost:3000",
+  );
 });

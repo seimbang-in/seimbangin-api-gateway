@@ -58,10 +58,22 @@ export const transactionsTable = mysqlTable("transactions", {
   user_id: bigint({ mode: "number" })
     .references(() => usersTable.id)
     .notNull(),
-  type: int().notNull().default(0), // 0 for income , 1 for expense
-  category: transactionCategoryEnums.notNull(),
+  type: int().notNull().default(0), 
   amount: decimal().notNull(),
   description: text("description"),
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
 });
+
+export const itemsTable = mysqlTable("transaction_items", {
+  id: bigint({ mode: "number" }).primaryKey().autoincrement(),
+  transaction_id: bigint({ mode: "number" })
+    .references(() => transactionsTable.id)
+    .notNull(),
+  item_name: text("item_name").notNull(),
+  category: transactionCategoryEnums.notNull(), 
+  price: decimal().notNull(), 
+  quantity: int().notNull(), 
+  subtotal: decimal().notNull(),
+});
+

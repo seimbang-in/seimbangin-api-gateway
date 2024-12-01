@@ -1,3 +1,4 @@
+import { createDecipheriv } from "crypto"; // Import decryption from Node.js
 import { hash, compare, genSalt } from "bcryptjs";
 import { sql } from "drizzle-orm";
 import { Request, Response } from "express";
@@ -7,10 +8,21 @@ import { usersTable } from "../db/schema";
 import { validationResult } from "express-validator";
 import { createResponse } from "../utils/response";
 
+// Kunci dan konfigurasi untuk dekripsi (harus sesuai dengan Flutter)
+const AES_KEY = "12345678901234567890123456789012"; // Panjang 32 byte
+const AES_ALGORITHM = "aes-256-ecb"; // Gunakan ECB mode
+
+function decryptPassword(encrypted: string): string {
+  const decipher = createDecipheriv(AES_ALGORITHM, AES_KEY, null); // ECB tidak butuh IV
+  const decrypted = Buffer.concat([
+    decipher.update(Buffer.from(encrypted, "base64")),
+    decipher.final(),
+  ]);
+  return decrypted.toString("utf8");
+}
+
 const authController = {
   register: async (req: Request, res: Response) => {
-    // check validaion from express-validator
-
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -23,7 +35,6 @@ const authController = {
       return;
     }
 
-    // check if email already exists
     const emailExists = await db
       .select()
       .from(usersTable)
@@ -38,33 +49,21 @@ const authController = {
       return;
     }
 
-    // destructure the required fields
     const { full_name, username, email, password, age } = req.body;
 
     try {
-      // hash the password
       const salt = await genSalt(10);
-      const hashedPassword = await hash(password, salt);
+      const hashedPassword = await hash(password, salt); // Hash sebelum disimpan
 
-      try {
-        // insert the user into the database
-        await db.insert(usersTable).values({
-          full_name,
-          username,
-          email,
-          age,
-          password: hashedPassword,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      } catch (error) {
-        createResponse.error({
-          res,
-          status: 500,
-          message: "Error occurred while inserting the user",
-        });
-        return;
-      }
+      await db.insert(usersTable).values({
+        full_name,
+        username,
+        email,
+        age,
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       createResponse.success({
         res,
@@ -74,13 +73,13 @@ const authController = {
       createResponse.error({
         res,
         status: 500,
-        message: "Error occurred while hashing the password",
+        message: "Error occurred while processing the request",
       });
-      return;
     }
   },
 
   login: async (req: Request, res: Response) => {
+
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -90,26 +89,42 @@ const authController = {
         message: "Validation Error",
         data: errors.array(),
       });
+      return;
     }
 
-    const { password, email } = req.body;
+    const { password: encryptedPassword, email } = req.body;
+
+    // Dekripsi password yang diterima dari Flutter
+    let decryptedPassword: string;
+    try {
+      decryptedPassword = decryptPassword(encryptedPassword);
+    } catch (error) {
+      createResponse.error({
+        res,
+        status: 400,
+        message: "Invalid password format",
+      });
+      return;
+    }
 
     const queryUser = await db
       .select()
       .from(usersTable)
       .where(sql`${usersTable.email} = ${email}`);
 
-    if (queryUser.length == 0) {
+    if (queryUser.length === 0) {
       createResponse.error({
         res,
         status: 404,
         message: "User not found",
       });
+      return;
     }
 
     const existingUser = queryUser[0];
 
-    const passwordMatch = await compare(password, existingUser.password);
+    // Cek kecocokan password dengan hash
+    const passwordMatch = await compare(decryptedPassword, existingUser.password);
 
     if (!passwordMatch) {
       createResponse.error({
@@ -124,9 +139,8 @@ const authController = {
 
     if (!jwtSecret) {
       res.status(500).send({
-        error: "Internal Server Error, JWT LOM DISET COKK",
+        error: "Internal Server Error, JWT_SECRET not set",
       });
-
       return;
     }
 
@@ -151,7 +165,6 @@ const authController = {
         status: 500,
         message: "Error occurred while creating the token",
       });
-      return;
     }
   },
 };
