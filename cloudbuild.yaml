@@ -1,3 +1,6 @@
+options:
+  logging: REGIONAL_USER_OWNED_BUCKET
+
 steps:
   - name: "gcr.io/cloud-builders/npm"
     entrypoint: "bash"
@@ -30,6 +33,6 @@ steps:
       - "--allow-unauthenticated"
       - "--quiet"
 
-# Optionally, you can trigger Cloud Build with a GitHub webhook
+#
 images:
   - "gcr.io/$PROJECT_ID/seimbangin-api"
