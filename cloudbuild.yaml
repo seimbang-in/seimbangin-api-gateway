@@ -31,8 +31,9 @@ steps:
       - "--region"
       - "asia-southeast2"
       - "--allow-unauthenticated"
+      - "--env-vars-file"
+      - "env.yaml"
       - "--quiet"
 
-#
 images:
   - "gcr.io/$PROJECT_ID/seimbangin-api"
