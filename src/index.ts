@@ -8,6 +8,7 @@ import financialProfileRouter from "./routes/financialProfile.routes";
 
 // intialize express
 const app: Express = express();
+const port = process.env.PORT || 8080;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -35,8 +36,8 @@ app.get("/protected", authenticateJWT, (req: Request, res: Response) => {
   });
 });
 
-app.listen(3000, () => {
+app.listen(port, () => {
   console.log(
-    "🎉 Server Expressnya dah jalan ya beb! 🚀 disini yhh http://localhost:3000",
+    "🎉 Server Expressnya dah jalan ya beb! 🚀 disini yhh http://localhost:${port}",
   );
 });
