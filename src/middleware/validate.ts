@@ -11,9 +11,8 @@ const validate = {
   login: [check("email").isEmail(), check("password").isLength({ min: 3 })],
   transaction: [
     check("type").isNumeric(),
-    check("category").isString(),
-    check("amount").isNumeric(),
     check("description").isString(),
+    check("items").isArray(),
   ],
   createFinancialProfile: [
     check("monthly_income").isNumeric().optional(),

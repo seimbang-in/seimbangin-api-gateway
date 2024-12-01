@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import db from "../db";
-import { transactionsTable, usersTable } from "../db/schema";
+import { itemsTable, transactionsTable, usersTable } from "../db/schema";
 import { validationResult } from "express-validator";
 import { count, eq } from "drizzle-orm";
 import { createResponse } from "../utils/response";
@@ -40,15 +40,26 @@ const updateBalance = async ({ newBalance, userId }: any) => {
 
 export const transactionController = {
   create: async (req: Request, res: Response) => {
+    // Validasi Request
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
       return;
     }
 
-    const { type, category, amount, description } = req.body;
+    const { type, description, items } = req.body;
 
+    // Validasi Items
+    if (!Array.isArray(items) || items.length === 0) {
+      res.status(400).json({
+        status: "error",
+        message: "Items cannot be empty",
+      });
+
+      return;
+    }
+
+    // Ambil data user dari database
     const user = await db.query.usersTable.findFirst({
       where: (user, { eq }) => eq(user.id, req.user.id),
     });
@@ -62,33 +73,56 @@ export const transactionController = {
     }
 
     const balance = parseFloat(user.balance);
-    const transactionAmount = parseFloat(amount);
 
-    if (type == 1 && balance < transactionAmount) {
+    // Hitung Total Amount
+    const totalAmount = items.reduce(
+      (sum: number, item: any) => sum + item.price * item.quantity,
+      0,
+    );
+
+    if (type === 1 && balance < totalAmount) {
       res.status(400).send({
         status: "error",
         message: "Insufficient balance",
         data: {
-          balance: user.balance,
-          amount,
+          balance: Number(user.balance),
+          transaction_ammount: totalAmount,
         },
       });
+
       return;
     }
 
     try {
-      await db.insert(transactionsTable).values({
-        user_id: req.user.id,
-        type,
-        amount,
-        description,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+      // Buat Transaksi Baru
+      const [transactionId] = await db
+        .insert(transactionsTable)
+        .values({
+          user_id: req.user.id,
+          type,
+          description,
+          amount: `${totalAmount}`,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .$returningId();
 
+      // Simpan Items ke transactionItemsTable
+      const itemsData = items.map((item: any) => ({
+        transaction_id: transactionId.id,
+        item_name: item.item_name,
+        category: item.category,
+        price: `${item.price}`,
+        quantity: item.quantity,
+        subtotal: `${item.price * item.quantity}`,
+      }));
+
+      await db.insert(itemsTable).values(itemsData);
+
+      // Update Balance User
       const newBalance = createNewBalance({
         type,
-        amount,
+        amount: `${totalAmount}`,
         balance: user.balance,
       });
 
@@ -100,29 +134,32 @@ export const transactionController = {
       if (!balanceUpdate.success) {
         res.status(500).send({
           status: "error",
-          message: "Error creating transaction",
+          message: "Error updating user balance",
         });
+
         return;
       }
 
-      res.send({
+      // Kirim Response Sukses
+      res.status(201).send({
         status: "success",
         message: "Transaction created successfully",
         data: {
-          user_id: req.user.id,
+          transaction_id: transactionId,
+          totalAmount,
           balance: newBalance,
-          type,
-          category,
-          amount,
-          description,
+          items,
         },
       });
+
+      return;
     } catch (error) {
+      console.error("Error creating transaction:", error);
       res.status(500).send({
         status: "error",
         message: "Error creating transaction",
-        error: error,
       });
+
       return;
     }
   },
