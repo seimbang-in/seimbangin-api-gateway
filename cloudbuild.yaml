@@ -3,12 +3,13 @@ options:
 
 steps:
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-      entrypoint: "bash"
-      args:
-        - "-c"
-        - |
-          gcloud secrets versions access latest --secret="seimbangin-api-env" > env.yaml
-          echo "Loaded environment variables from Secret Manager."
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        gcloud secrets versions access latest --secret="seimbangin-api-env" > env.yaml
+        echo "Loaded environment variables from Secret Manager."
+
   - name: "gcr.io/cloud-builders/npm"
     entrypoint: "bash"
     args: ["-c", "npm install && npm run build"]
