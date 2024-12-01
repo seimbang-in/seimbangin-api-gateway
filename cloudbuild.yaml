@@ -1,5 +1,5 @@
 options:
-  logging: REGIONAL_USER_OWNED_BUCKET
+  logging: CLOUD_LOGGING_ONLY
 
 steps:
   - name: "gcr.io/cloud-builders/npm"
