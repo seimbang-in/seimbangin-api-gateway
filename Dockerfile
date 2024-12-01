@@ -21,7 +21,7 @@ EXPOSE 8080
 
 # Set environment variables (if any, can be overwritten in GCP console)
 # ENV DB_HOST=localhost
-# ENV PORT=8080
+ENV PORT=8080
 
 # Start the server
 CMD ["npm", "run", "start"]
