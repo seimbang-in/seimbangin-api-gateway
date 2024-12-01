@@ -80,7 +80,6 @@ export const transactionController = {
       await db.insert(transactionsTable).values({
         user_id: req.user.id,
         type,
-        category,
         amount,
         description,
         createdAt: new Date(),
