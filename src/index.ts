@@ -6,7 +6,7 @@ import userRouter from "./routes/user.routes";
 import transactionRouter from "./routes/transaction.routes";
 import financialProfileRouter from "./routes/financialProfile.routes";
 
-// intialize express
+// Initialize express
 const app: Express = express();
 const port = parseInt(process.env.PORT || "8080", 10);
 
@@ -36,6 +36,16 @@ app.get("/protected", authenticateJWT, (req: Request, res: Response) => {
   });
 });
 
+// Ensure server listens on the correct port and IP
 app.listen(port, "0.0.0.0", () => {
-  console.log("🎉 Server Expressnya dah jalan ya beb! di port: ", port);
+  console.log(`🎉 Server is running on http://0.0.0.0:${port}`);
+});
+
+// Handle uncaught errors
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled Rejection:", reason);
 });
