@@ -2,14 +2,6 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    entrypoint: "bash"
-    args:
-      - "-c"
-      - |
-        gcloud secrets versions access latest --secret="seimbangin-api-env" > env.yaml
-        echo "Loaded environment variables from Secret Manager."
-
   - name: "gcr.io/cloud-builders/npm"
     entrypoint: "bash"
     args: ["-c", "npm install && npm run build"]
@@ -39,8 +31,15 @@ steps:
       - "--region"
       - "asia-southeast2"
       - "--allow-unauthenticated"
-      - "--env-vars-file"
-      - "env.yaml"
+      - "--set-secrets=DB_CONNECTION=projects/$PROJECT_ID/secrets/seimbangin-api-env:latest"
+      - "--set-secrets=DB_HOST=projects/$PROJECT_ID/secrets/seimbangin-api-env:latest"
+      - "--set-secrets=DB_PORT=projects/$PROJECT_ID/secrets/seimbangin-api-env:latest"
+      - "--set-secrets=DB_NAME=projects/$PROJECT_ID/secrets/seimbangin-api-env:latest"
+      - "--set-secrets=DB_USER=projects/$PROJECT_ID/secrets/seimbangin-api-env:latest"
+      - "--set-secrets=DB_PASSWORD=projects/$PROJECT_ID/secrets/seimbangin-api-env:latest"
+      - "--set-secrets=GOOGLE_CLOUD_CREDENTIALS=projects/$PROJECT_ID/secrets/seimbangin-api-env:latest"
+      - "--set-secrets=BUCKET_NAME=projects/$PROJECT_ID/secrets/seimbangin-api-env:latest"
+      - "--set-secrets=JWT_SECRET=projects/$PROJECT_ID/secrets/seimbangin-api-env:latest"
       - "--quiet"
 
 images:
