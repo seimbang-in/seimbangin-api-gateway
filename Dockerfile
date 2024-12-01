@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Expose the application port
-EXPOSE 8080
+# EXPOSE 8080
 
 # Set environment variables (if any, can be overwritten in GCP console)
 # ENV DB_HOST=localhost
