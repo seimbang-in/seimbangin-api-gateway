@@ -9,7 +9,11 @@ credential.json
 
 .env
 
+
 dist
+
+# service account
+gcp-service-account.json
 
 # Coveralls
 .nyc_output
