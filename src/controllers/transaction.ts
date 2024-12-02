@@ -47,7 +47,7 @@ export const transactionController = {
       return;
     }
 
-    const { type, description, items } = req.body;
+    const { type, description, items, category } = req.body;
 
     // Validasi Items
     if (!Array.isArray(items) || items.length === 0) {
@@ -101,6 +101,7 @@ export const transactionController = {
           user_id: req.user.id,
           type,
           description,
+          category: category || "others",
           amount: `${totalAmount}`,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -173,6 +174,9 @@ export const transactionController = {
     const userId = req.user.id;
 
     const transactions = await db.query.transactionsTable.findMany({
+      with: {
+        items: true,
+      },
       where: (transaction, { eq }) => eq(transaction.user_id, userId),
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
@@ -190,7 +194,7 @@ export const transactionController = {
       message: "Transactions retrieved successfully",
       data: transactions,
       meta: {
-        currentPage: page || 1,
+        currentPage: Number(page) || 1,
         limit: Number(limit) || transactions.length,
         totalItems: totalData,
         totalPages: Math.ceil(
