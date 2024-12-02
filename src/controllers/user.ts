@@ -46,8 +46,6 @@ export const UserController = {
             AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
             AND created_at < DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01');`);
 
-        console.log(thisMonthIncome, "This month income");
-
         res.send({
           status: "success",
           data: { ...user, thisMonthIncome: thisMonthIncome[0] },

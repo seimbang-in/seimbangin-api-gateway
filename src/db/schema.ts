@@ -79,6 +79,8 @@ export const itemsTable = mysqlTable("transaction_items", {
   price: decimal().notNull(),
   quantity: int().notNull(),
   subtotal: decimal().notNull(),
+  createdAt: timestamp("created_at"),
+  updatedAt: timestamp("updated_at"),
 });
 
 export const transactionRelations = relations(transactionsTable, ({ one }) => ({
