@@ -1,0 +1,2 @@
+ALTER TABLE `transaction_items` MODIFY COLUMN `category` enum('food','transportation','utilities','entertainment','shopping','healthcare','education','others') DEFAULT 'others';--> statement-breakpoint
+ALTER TABLE `transactions` ADD `category` enum('food','transportation','utilities','entertainment','shopping','healthcare','education','others') DEFAULT 'others';

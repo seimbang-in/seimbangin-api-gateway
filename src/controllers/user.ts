@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { gcsHelper } from "../utils/googleCloudStorageHelper";
 import db from "../db";
-import { userFinancial, usersTable } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { transactionsTable, userFinancial, usersTable } from "../db/schema";
+import { eq, sql } from "drizzle-orm";
 
 export const UserController = {
   detail: async (req: Request, res: Response) => {
@@ -33,10 +33,29 @@ export const UserController = {
         .leftJoin(userFinancial, eq(usersTable.id, userFinancial.user_id))
         .then((rows) => rows[0]);
 
-      res.send({
-        status: "success",
-        data: user,
-      });
+      // const thisMonthIncome = await db.select().from(transactionsTable).where({
+      //   user_id: userId,
+      //   type: "income",
+      // });
+
+      try {
+        const thisMonthIncome = await db.execute(sql`
+          SELECT AVG(amount) AS average_income
+          FROM transactions
+          WHERE type = 0
+            AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+            AND created_at < DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01');`);
+
+        res.send({
+          status: "success",
+          data: { ...user, thisMonthIncome: thisMonthIncome[0] },
+        });
+      } catch (error) {
+        res.send({
+          status: "error",
+          message: "An error occurred while fetching the user's income",
+        });
+      }
     } catch (error) {
       console.error(error);
       res.status(500).send({

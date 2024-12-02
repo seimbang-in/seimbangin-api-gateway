@@ -8,6 +8,8 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/mysql-core";
+import { relations } from "drizzle-orm";
+import { send } from "process";
 
 const transactionCategoryEnums = mysqlEnum("category", [
   "food",
@@ -58,8 +60,10 @@ export const transactionsTable = mysqlTable("transactions", {
   user_id: bigint({ mode: "number" })
     .references(() => usersTable.id)
     .notNull(),
-  type: int().notNull().default(0), 
-  amount: decimal().notNull(),
+  name: varchar({ length: 255 }).notNull().default("Transaction"),
+  type: int().notNull().default(0),
+  amount: decimal().notNull().default("0.0"),
+  category: transactionCategoryEnums.default("others"),
   description: text("description"),
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
@@ -71,9 +75,24 @@ export const itemsTable = mysqlTable("transaction_items", {
     .references(() => transactionsTable.id)
     .notNull(),
   item_name: text("item_name").notNull(),
-  category: transactionCategoryEnums.notNull(), 
-  price: decimal().notNull(), 
-  quantity: int().notNull(), 
+  category: transactionCategoryEnums.default("others"),
+  price: decimal().notNull(),
+  quantity: int().notNull(),
   subtotal: decimal().notNull(),
+  createdAt: timestamp("created_at"),
+  updatedAt: timestamp("updated_at"),
 });
 
+export const transactionRelations = relations(transactionsTable, ({ one }) => ({
+  items: one(itemsTable, {
+    fields: [transactionsTable.id],
+    references: [itemsTable.transaction_id],
+  }),
+}));
+
+export const itemsRelation = relations(itemsTable, ({ one }) => ({
+  transactionsTable: one(transactionsTable, {
+    fields: [itemsTable.transaction_id],
+    references: [transactionsTable.id],
+  }),
+}));
