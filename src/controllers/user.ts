@@ -6,7 +6,15 @@ import { eq, sql } from "drizzle-orm";
 
 export const UserController = {
   detail: async (req: Request, res: Response) => {
-    const userId = req.user.id;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(400).send({
+        status: "error",
+        message: "User ID is missing",
+      });
+      return;
+    }
 
     try {
       const user = await db
@@ -66,7 +74,15 @@ export const UserController = {
   },
 
   uploadPfp: async (req: Request, res: Response) => {
-    const userId = req.user.id;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(400).send({
+        status: "error",
+        message: "User ID is missing",
+      });
+      return;
+    }
 
     if (!userId) {
       res.status(400).send({
