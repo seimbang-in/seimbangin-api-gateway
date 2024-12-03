@@ -21,15 +21,11 @@ export const financialProfileController = {
       .leftJoin(userFinancial, eq(usersTable.id, userFinancial.user_id))
       .where(eq(usersTable.id, req.user.id));
 
-    console.log(user[0].user_financial_profile, "User financial profile");
-
     // if user don't have a financial profile, create one
     if (!user || !user.length || !user[0].user_financial_profile) {
-      console.log("Creating a new financial profile");
       await db.insert(userFinancial).values({
         user_id: req.user.id,
       });
-      console.log("New financial profile created");
     }
 
     const {
@@ -64,8 +60,6 @@ export const financialProfileController = {
         },
       });
     } catch (error) {
-      console.log(error, "Error occurred while creating the financial profile");
-
       createResponse.error({
         res,
         status: 500,

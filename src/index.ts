@@ -7,6 +7,7 @@ import transactionRouter from "./routes/transaction.routes";
 import financialProfileRouter from "./routes/financialProfile.routes";
 import authDevRouter from "./routes/dev/authDev.routes";
 import cors from "cors";
+import advisorRouter from "./routes/advisor.routes";
 
 // intialize express
 const app: Express = express();
@@ -24,6 +25,7 @@ app.use("/dev/auth", authDevRouter);
 app.use("/user", userRouter);
 app.use("/transaction", transactionRouter);
 app.use("/financial-profile", financialProfileRouter);
+app.use("/advisor", advisorRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.render("index", {
