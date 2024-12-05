@@ -174,13 +174,36 @@ export const transactionController = {
     const userId = req.user.id;
 
     const transactions = await db.query.transactionsTable.findMany({
-      with: {
-        items: true,
-      },
       where: (transaction, { eq }) => eq(transaction.user_id, userId),
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
     });
+
+    const getTransaction = await db
+      .select({
+        id: transactionsTable.id,
+        type: transactionsTable.type,
+        description: transactionsTable.description,
+        category: transactionsTable.category,
+        amount: transactionsTable.amount,
+        createdAt: transactionsTable.createdAt,
+        updatedAt: transactionsTable.updatedAt,
+        items: {
+          id: itemsTable.id,
+          item_name: itemsTable.item_name,
+          category: itemsTable.category,
+          price: itemsTable.price,
+          quantity: itemsTable.quantity,
+          subtotal: itemsTable.subtotal,
+        },
+      })
+      .from(transactionsTable)
+      .innerJoin(
+        itemsTable,
+        eq(transactionsTable.id, itemsTable.transaction_id),
+      )
+      .offset(offset || 0)
+      .limit(Number(limit) || transactions.length);
 
     const totalData = await db
       .select({ count: count() })
@@ -192,7 +215,7 @@ export const transactionController = {
     createResponse.success({
       res,
       message: "Transactions retrieved successfully",
-      data: transactions,
+      data: getTransaction,
       meta: {
         currentPage: Number(page) || 1,
         limit: Number(limit) || transactions.length,
