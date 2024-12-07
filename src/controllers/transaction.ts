@@ -2,8 +2,9 @@ import { Request, Response } from "express";
 import db from "../db";
 import { itemsTable, transactionsTable, usersTable } from "../db/schema";
 import { validationResult } from "express-validator";
-import { count, eq } from "drizzle-orm";
+import { count } from "drizzle-orm";
 import { createResponse } from "../utils/response";
+import { eq } from "drizzle-orm/mysql-core/expressions";
 
 const createNewBalance = ({
   type,
