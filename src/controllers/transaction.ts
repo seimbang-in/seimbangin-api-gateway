@@ -179,31 +179,19 @@ export const transactionController = {
       offset: offset ? Number(offset) : undefined,
     });
 
-    const getTransaction = await db
-      .select({
-        id: transactionsTable.id,
-        type: transactionsTable.type,
-        description: transactionsTable.description,
-        category: transactionsTable.category,
-        amount: transactionsTable.amount,
-        createdAt: transactionsTable.createdAt,
-        updatedAt: transactionsTable.updatedAt,
-        items: {
-          id: itemsTable.id,
-          item_name: itemsTable.item_name,
-          category: itemsTable.category,
-          price: itemsTable.price,
-          quantity: itemsTable.quantity,
-          subtotal: itemsTable.subtotal,
-        },
-      })
-      .from(transactionsTable)
-      .innerJoin(
-        itemsTable,
-        eq(transactionsTable.id, itemsTable.transaction_id),
-      )
-      .offset(offset || 0)
-      .limit(Number(limit) || transactions.length);
+    const transactionIds = transactions.map((t) => t.id);
+
+    // Ambil items secara terpisah
+    const items = await db.query.itemsTable.findMany({
+      where: (item, { inArray }) =>
+        inArray(item.transaction_id, transactionIds),
+    });
+
+    const transactionsWithItems = transactions.map((transaction) => ({
+      ...transaction,
+      items:
+        items.filter((item) => item.transaction_id === transaction.id) || [],
+    }));
 
     const totalData = await db
       .select({ count: count() })
@@ -215,7 +203,7 @@ export const transactionController = {
     createResponse.success({
       res,
       message: "Transactions retrieved successfully",
-      data: getTransaction,
+      data: transactionsWithItems,
       meta: {
         currentPage: Number(page) || 1,
         limit: Number(limit) || transactions.length,
@@ -260,18 +248,24 @@ export const transactionController = {
         balance: userBalance?.balance || "0",
       });
 
+      // delete transcation items
+      await db
+        .delete(itemsTable)
+        .where(eq(itemsTable.transaction_id, transactionId));
+
+      // delete transaction
       await db
         .delete(transactionsTable)
         .where(eq(transactionsTable.id, transactionId));
 
       // if transaction type is income, subtract amount from balance
-
       const balanceUpdate = await updateBalance({
         newBalance,
         userId: req.user.id,
       });
 
       if (!balanceUpdate.success) {
+        console.log("ERROR");
         createResponse.error({
           res,
           status: 500,
@@ -289,6 +283,7 @@ export const transactionController = {
         },
       });
     } catch (error) {
+      console.log("ERROR", error);
       createResponse.error({
         res,
         status: 500,

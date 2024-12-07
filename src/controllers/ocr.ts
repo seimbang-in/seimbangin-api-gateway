@@ -15,7 +15,7 @@ const ocrController = {
       return;
     }
 
-    const getORD = (image: Express.Multer.File) => {
+    const getOCR = (image: Express.Multer.File) => {
       console.log(image);
 
       return {
@@ -25,20 +25,24 @@ const ocrController = {
           products: [
             {
               name: "GRNIER M.COOLFOAM50",
-              price: "39,800",
+              price: 39800,
+              quantity: 1,
+              // category: "others",
             },
             {
               name: "PLASTIK KCL",
-              price: "1",
+              price: 10000,
+              quantity: 1,
+              // category: "others",
             },
           ],
           discount: null,
-          total: "39,800",
+          total: 49800,
         },
       };
     };
 
-    const mockData = getORD(photo).data;
+    const mockData = getOCR(photo).data;
 
     setTimeout(() => {
       createResponse.success({
