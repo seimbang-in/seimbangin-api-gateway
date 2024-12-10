@@ -197,6 +197,7 @@ export const transactionController = {
     const totalData = await db
       .select({ count: count() })
       .from(transactionsTable)
+      .where(eq(transactionsTable.user_id, userId))
       .then((data) => {
         return Number(data[0].count);
       });
