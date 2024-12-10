@@ -24,6 +24,8 @@
 - Drizzle ORM
 - Mysql
 - JWT
+- Handlebars
+- Tailwind CSS
 
 ### Migration Guide
 
