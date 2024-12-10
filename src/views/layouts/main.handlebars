@@ -1,0 +1,42 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <meta property="og:title" content="Seimbangin" />
+    <meta name="description" content="Api Dokumentasi buat Seimbangin App" />
+    <meta
+      property="og:image"
+      content="https://firebasestorage.googleapis.com/v0/b/d-web-39027.appspot.com/o/random%2Fog-img.jpeg?alt=media&token=76d4cb49-3c82-4211-aabf-86552d7410d1"
+    />
+    <meta property="og:url" content="https://seimbangin.vercel.app/" />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Judul Halamanmu" />
+    <meta
+      name="twitter:description"
+      content="Deskripsi singkat untuk Twitter"
+    />
+    <meta
+      name="twitter:image"
+      content="https://firebasestorage.googleapis.com/v0/b/d-web-39027.appspot.com/o/random%2Fog-img.jpeg?alt=media&token=76d4cb49-3c82-4211-aabf-86552d7410d1"
+    />
+    <link href="../../../index.css" rel="stylesheet" />
+    <script src="../../main.js" defer></script>
+
+    <!-- Load CDN only if 'loadThreeJS' is true -->
+    {{#if loadThreeJS}}
+      <script type="importmap">
+        { "imports": { "three":
+        "https://unpkg.com/three@v0.149.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@v0.149.0/examples/jsm/" } }
+      </script>
+    {{/if}}
+  </head>
+  <body>
+    <main>
+      {{{body}}}
+    </main>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+const OCR_URL = `${process.env.OCR_API_URL}/ocr`;
+const ITEM_CLASIFICATION_URL = process.env.ITEM_CLASIFICATOR_API_URL;
+const ADVISOR_URL = process.env.ADVISOR_API_URL;
+
+export { OCR_URL, ITEM_CLASIFICATION_URL, ADVISOR_URL };

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<body class="flex h-full min-h-screen w-full items-center justify-center text-white">
+
+    <div class="text-center space-y-8 p-4 bg-black bg-opacity-50 rounded-lg shadow-lg max-w-md">
+        <h1 class="text-4xl font-bold underline">Feliz Juevez!!</h1>
+        <p class="text-lg">met datang di API nya <u>seimbang.in</u> <br> sebelum mulai <span
+                class="text-blue-400 font-bold">play</span> dulu biar asekk 👇👇</p>
+
+        <div class="flex items-center justify-center">
+            <iframe width="300" height="200"
+                src="https://www.youtube.com/embed/_N66Hud_Tq4?list=RD_N66Hud_Tq4&start_radio=1&autoplay=1&mute=0"
+                title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>
+        </div>
+        <br><br>
+        <a target="_blank"
+            href="https://team-capstone-bangkit.postman.co/workspace/9c6bb94b-7950-40e2-84cc-78f8d9b01a4a/collection/34541343-de8cf09e-ea42-4ace-b924-4df2fb597d89">
+            <button id="api-doc-btn"
+                class="bg-purple-600 px-4 py-3 rounded-lg hover:bg-purple-800 transition-all duration-300 ">
+                Dokumentasi API
+            </button>
+        </a>
+    </div>
+
+    <img src="https://64.media.tumblr.com/98c552f45e9d26a7891761bf36504ccc/9a7596dc8abb8eac-98/s540x810/00fef8dc47c0f6253447e824a142a83baabefaf9.png"
+        alt="Synthwave Corner Image" class="corner-image">
+
+    <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/5f0018a2-8560-4f86-b6ed-ce255489220d/dgvt5l0-a1a85802-6e0d-4995-8a37-faf70f82b9c0.png/v1/fill/w_1280,h_1462/rei_ayanami_png_render_free___by_xanccount_by_xanccount_dgvt5l0-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTQ2MiIsInBhdGgiOiJcL2ZcLzVmMDAxOGEyLTg1NjAtNGY4Ni1iNmVkLWNlMjU1NDg5MjIwZFwvZGd2dDVsMC1hMWE4NTgwMi02ZTBkLTQ5OTUtOGEzNy1mYWY3MGY4MmI5YzAucG5nIiwid2lkdGgiOiI8PTEyODAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.jqt6ii5JbW3J4tyA1vocQW2_8FCFypQO4UtyY87OB8g"
+        alt="" class="corner-right-image">
+</body>
+
+<script>
+    document.getElementById('api-doc-btn').addEventListener('click', function () {
+        const button = this;
+        button.classList.add('clicked');
+
+        setTimeout(() => {
+            button.classList.remove('clicked');
+        }, 100);
+    });
+</script>
+
+<style>
+        body {
+            background-image: url('https://wallpapers.com/images/hd/80s-synthwave-background-ldzft5iaa7at47x0.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        .corner-image {
+            position: absolute;
+            bottom: -4rem;
+            left: 0;
+            width: 26rem;
+            height: auto;
+            margin: 20px;
+            opacity: 0.99;
+            animation: floating 5s ease-in-out infinite;
+        }
+
+        .corner-right-image {
+            position: absolute;
+            bottom: -8rem;
+            right: -4rem;
+            width: 26rem;
+            height: auto;
+            margin: 20px;
+            opacity: 0.99;
+            transform: skew(-10deg) scaleX(-1);
+            animation: floating-mirror 4s ease-in-out infinite;
+        }
+
+        @keyframes floating-mirror {
+
+            0%,
+            100% {
+                transform: skew(-10deg) scaleX(-1) translateY(0);
+            }
+
+            50% {
+                transform: skew(-10deg) scaleX(-1) translateY(-20px);
+            }
+        }
+
+        @keyframes floating {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .clicked {
+            transform: scale(0.95);
+            opacity: 0.7;
+        }
+    </style>
+
+</html>

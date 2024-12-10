@@ -6,9 +6,26 @@ DB_USER=ryo
 # klo bisa jangan kosong
 DB_PASSWORD=123
 
+GOOGLE_CLOUD_CREDENTIALS='{
+  "type": "",
+  "project_id": "",
+  "private_key_id": "",
+  "private_key": "",
+  "client_email": "",
+  "client_id": "",
+  "auth_uri": "",
+  "token_uri": "",
+  "auth_provider_x509_cert_url": "",
+  "client_x509_cert_url": "",
+  "universe_domain": ""
+}'
 
-GOOGLE_CLOUD_CREDENTIALS=
 BUCKET_NAME=
+
+# PRIVATE ENDPOINT
+OCR_API_URL=
+ITEM_CLASIFICATOR_API_URL=
+ADVISOR_API_URL=
 
 #bebas isi apa aja 
 JWT_SECRET=

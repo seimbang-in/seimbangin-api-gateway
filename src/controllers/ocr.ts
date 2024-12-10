@@ -1,5 +1,27 @@
 import { createResponse } from "../utils/response";
 import { Request, Response } from "express";
+import { ITEM_CLASIFICATION_URL, OCR_URL } from "../static/url";
+import axios from "axios";
+import FormData from "form-data";
+
+const getOCR = async (image: Express.Multer.File) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", image.buffer, image.originalname);
+
+    const response = await axios.post(`${OCR_URL}/predict-by-file`, formData, {
+      headers: {
+        ...formData.getHeaders(),
+      },
+    });
+
+    const { data } = response;
+    return data;
+  } catch (error) {
+    console.log(error, "ERROR");
+    return null;
+  }
+};
 
 const ocrController = {
   post: async (req: Request, res: Response) => {
@@ -14,43 +36,39 @@ const ocrController = {
       });
       return;
     }
+    const ocrData = await getOCR(photo);
 
-    const getOCR = (image: Express.Multer.File) => {
-      console.log(image);
+    if (!ocrData) {
+      createResponse.error({
+        status: 500,
+        res,
+        message: "An error occurred while processing the file",
+      });
+      return;
+    }
+    const items = ocrData.data.items;
 
-      return {
-        resultCode: 200,
-        message: "Success",
-        data: {
-          products: [
-            {
-              name: "GRNIER M.COOLFOAM50",
-              price: 39800,
-              quantity: 1,
-              category: "others",
-            },
-            {
-              name: "PLASTIK KCL",
-              price: 10000,
-              quantity: 1,
-              category: "others",
-            },
-          ],
-          discount: null,
-          total: 49800,
-        },
-      };
-    };
+    try {
+      const clasifiedItems = await axios.post(
+        `${ITEM_CLASIFICATION_URL}/text/classify`,
+        { items },
+      );
 
-    const mockData = getOCR(photo).data;
-
-    setTimeout(() => {
       createResponse.success({
         res,
-        message: `OCR process success, photo file : ${photo.originalname}`,
-        data: mockData,
+        message: "OCR data retrieved successfully",
+        data: clasifiedItems.data,
       });
-    }, 1000);
+      return;
+    } catch (error) {
+      console.log("ERROR SAAT MENGIRIM DATA KE ITEM CLASIFICATION API");
+      createResponse.error({
+        status: 500,
+        res,
+        message: "An error occurred while processing the file",
+      });
+      return;
+    }
   },
 };
 
