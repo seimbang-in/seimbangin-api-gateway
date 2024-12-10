@@ -28,6 +28,7 @@
     "@types/express-session": "^1.18.0",
     "@types/uuid": "^10.0.0",
     "@vercel/node": "^3.2.23",
+    "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",

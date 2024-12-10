@@ -15,8 +15,6 @@ import { create } from "express-handlebars";
 const app: Express = express();
 const hbs = create();
 
-
-
 app.use(cors());
 
 app.use(express.urlencoded({ extended: true }));
@@ -24,7 +22,8 @@ app.use(express.json());
 
 app.engine("handlebars", hbs.engine);
 app.set("view engine", "handlebars");
-app.set("views", "./src/views");
+
+app.set('views', path.resolve(__dirname, '../src/views'));
 
 app.use(express.static(path.resolve(__dirname, '../public/')));
 
