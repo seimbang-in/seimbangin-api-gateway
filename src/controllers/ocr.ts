@@ -1,6 +1,6 @@
 import { createResponse } from "../utils/response";
 import { Request, Response } from "express";
-import { OCR_URL } from "../static/url";
+import { ITEM_CLASIFICATION_URL, OCR_URL } from "../static/url";
 import axios from "axios";
 import FormData from "form-data";
 
@@ -46,8 +46,29 @@ const ocrController = {
       });
       return;
     }
-    res.send(ocrData);
-    return;
+    const items = ocrData.data.items;
+
+    try {
+      const clasifiedItems = await axios.post(
+        `${ITEM_CLASIFICATION_URL}/text/classify`,
+        { items },
+      );
+
+      createResponse.success({
+        res,
+        message: "OCR data retrieved successfully",
+        data: clasifiedItems.data,
+      });
+      return;
+    } catch (error) {
+      console.log("ERROR SAAT MENGIRIM DATA KE ITEM CLASIFICATION API");
+      createResponse.error({
+        status: 500,
+        res,
+        message: "An error occurred while processing the file",
+      });
+      return;
+    }
   },
 };
 

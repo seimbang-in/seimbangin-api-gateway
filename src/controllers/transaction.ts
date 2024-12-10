@@ -267,7 +267,6 @@ export const transactionController = {
       });
 
       if (!balanceUpdate.success) {
-        console.log("ERROR");
         createResponse.error({
           res,
           status: 500,
