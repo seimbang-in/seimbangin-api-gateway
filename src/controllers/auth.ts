@@ -92,12 +92,15 @@ const authController = {
       });
     }
 
-    const { password, email } = req.body;
+    const { password, identifier } = req.body;
+
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+    const column = isEmail ? usersTable.email : usersTable.username;
 
     const queryUser = await db
       .select()
       .from(usersTable)
-      .where(sql`${usersTable.email} = ${email}`);
+      .where(sql`${column} = ${identifier}`);
 
     if (queryUser.length == 0) {
       createResponse.error({

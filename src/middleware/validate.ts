@@ -8,7 +8,14 @@ const validate = {
     check("age").isNumeric().optional(),
     check("password").isLength({ min: 3 }),
   ],
-  login: [check("email").isEmail(), check("password").isLength({ min: 3 })],
+  login: [
+    check("identifier")
+      .isString()
+      .withMessage("Identifier (email or username) is required"),
+    check("password")
+      .isLength({ min: 3 })
+      .withMessage("Password must be at least 3 characters long"),
+  ],
   transaction: [
     check("type").isNumeric(),
     check("description").isString(),
