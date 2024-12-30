@@ -6,6 +6,27 @@ import db from "../db";
 import { transactionsTable, userFinancial } from "../db/schema";
 import { eq, and, gte, lt, sql } from "drizzle-orm";
 import dayjs from "dayjs";
+import { openai } from "../utils/openai";
+
+const getGPTAdvice = async (payload: any) => {
+  const userData = JSON.stringify(payload);
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content: `You are a financial assistant tasked with providing advice based on users' monthly income, total expenses, savings, debt, risk management, and financial profile. answer with short and simple answer.  userdata : ${userData}`,
+      },
+      {
+        role: "user",
+        content: "Can you provide me with some financial advice?",
+      },
+    ],
+  });
+
+  return completion.choices[0].message.content;
+};
 
 const parseToJSON = (input: string) => {
   const data = input.trim().split("\n"); // Menghapus spasi awal/akhir di input
@@ -125,7 +146,8 @@ export const advisorController = {
       financial_goals: financeProfile[0].financial_goals,
     };
 
-    const advice = await getAdvice(payload);
+    // const advice = await getAdvice(payload);
+    const advice = await getGPTAdvice(payload);
 
     if (!advice) {
       createResponse.error({

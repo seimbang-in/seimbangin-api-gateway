@@ -124,7 +124,7 @@ export const UserController = {
       });
       return;
     } catch (error) {
-      console.error(error);
+      console.error(error, "ERROR");
       res.status(500).send({
         status: "error",
         message: "An error occurred while uploading the file",
