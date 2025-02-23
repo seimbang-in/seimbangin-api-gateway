@@ -7,154 +7,162 @@ import { usersTable } from "../db/schema";
 import { validationResult } from "express-validator";
 import { createResponse } from "../utils/response";
 
+const generateToken = (user: any) => {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) throw new Error("JWT_SECRET is not set");
+
+  return jwt.sign(
+    { id: user.id, email: user.email, googleId: user.googleId },
+    jwtSecret,
+    { expiresIn: "7d" }
+  );
+};
+
 const authController = {
   register: async (req: Request, res: Response) => {
-    // check validaion from express-validator
-
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      createResponse.error({
-        res,
-        status: 400,
-        message: "Validation Error",
-        data: errors.array(),
-      });
-      return;
-    }
-
-    // check if email already exists
-    const emailExists = await db
-      .select()
-      .from(usersTable)
-      .where(sql`${usersTable.email} = ${req.body.email}`);
-
-    if (emailExists.length > 0) {
-      createResponse.error({
-        res,
-        status: 400,
-        message: "Email already exists",
-      });
-      return;
-    }
-
-    // destructure the required fields
-    const { full_name, username, email, password, age } = req.body;
-
     try {
-      // hash the password
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return createResponse.error({
+          res,
+          status: 400,
+          message: "Validation Error",
+          data: errors.array(),
+        });
+      }
+
+      const { full_name, username, email, password } = req.body;
+
+      const existingUser = await db
+        .select()
+        .from(usersTable)
+        .where(sql`${usersTable.email} = ${email}`);
+
+      if (existingUser.length > 0) {
+        return createResponse.error({
+          res,
+          status: 400,
+          message: "Email already exists",
+        });
+      }
+
+      if (!password) {
+        return createResponse.error({
+          res,
+          status: 400,
+          message: "Password is required",
+        });
+      }
+
       const salt = await genSalt(10);
       const hashedPassword = await hash(password, salt);
 
-      try {
-        // insert the user into the database
-        await db.insert(usersTable).values({
+      const [newUser] = await db
+        .insert(usersTable)
+        .values({
           full_name,
           username,
           email,
-          age,
           password: hashedPassword,
           createdAt: new Date(),
           updatedAt: new Date(),
-        });
-      } catch (error) {
-        createResponse.error({
-          res,
-          status: 500,
-          message: "Error occurred while inserting the user",
-        });
-        return;
-      }
+        })
+        .returning();
 
-      createResponse.success({
+      return createResponse.success({
         res,
         message: "User registered successfully",
+        data: { token: generateToken(newUser) },
       });
     } catch (error) {
-      createResponse.error({
+      console.error("Register Error:", error);
+      return createResponse.error({
         res,
         status: 500,
-        message: "Error occurred while hashing the password",
+        message: "Internal Server Error",
       });
-      return;
     }
   },
 
   login: async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      createResponse.error({
-        res,
-        status: 400,
-        message: "Validation Error",
-        data: errors.array(),
-      });
-    }
-
-    const { password, identifier } = req.body;
-
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
-    const column = isEmail ? usersTable.email : usersTable.username;
-
-    const queryUser = await db
-      .select()
-      .from(usersTable)
-      .where(sql`${column} = ${identifier}`);
-
-    if (queryUser.length == 0) {
-      createResponse.error({
-        res,
-        status: 404,
-        message: "User not found",
-      });
-    }
-
-    const existingUser = queryUser[0];
-
-    const passwordMatch = await compare(password, existingUser.password);
-
-    if (!passwordMatch) {
-      createResponse.error({
-        res,
-        status: 401,
-        message: "Invalid credentials",
-      });
-      return;
-    }
-
-    const jwtSecret = process.env.JWT_SECRET;
-
-    if (!jwtSecret) {
-      res.status(500).send({
-        error: "Internal Server Error, JWT LOM DISET COKK",
-      });
-
-      return;
-    }
-
     try {
-      const expiresIn = 604800;
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return createResponse.error({
+          res,
+          status: 400,
+          message: "Validation Error",
+          data: errors.array(),
+        });
+      }
 
-      const token = jwt.sign(existingUser, jwtSecret, {
-        expiresIn: expiresIn,
-      });
+      const { identifier, password } = req.body;
 
-      createResponse.success({
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+      const column = isEmail ? usersTable.email : usersTable.username;
+
+      const queryUser = await db
+        .select()
+        .from(usersTable)
+        .where(sql`${column} = ${identifier}`);
+
+      if (queryUser.length === 0) {
+        return createResponse.error({
+          res,
+          status: 404,
+          message: "User not found",
+        });
+      }
+
+      const existingUser = queryUser[0];
+
+      if (!existingUser.password) {
+        return createResponse.error({
+          res,
+          status: 400,
+          message: "This account uses Google Login. Please sign in with Google.",
+        });
+      }
+
+      const passwordMatch = await compare(password, existingUser.password);
+      if (!passwordMatch) {
+        return createResponse.error({
+          res,
+          status: 401,
+          message: "Invalid credentials",
+        });
+      }
+
+      return createResponse.success({
         res,
         message: "Login Success",
-        data: {
-          token,
-          expiresIn,
-        },
+        data: { token: generateToken(existingUser) },
       });
     } catch (error) {
-      createResponse.error({
+      console.error("Login Error:", error);
+      return createResponse.error({
         res,
         status: 500,
-        message: "Error occurred while creating the token",
+        message: "Internal Server Error",
       });
-      return;
+    }
+  },
+
+  googleCallback: async (req: Request, res: Response) => {
+    try {
+      const user = req.user as any;
+      const token = generateToken(user);
+      return createResponse.success({
+        res,
+        message: "Google Login Success",
+        data: { token },
+      });
+    } catch (error) {
+      return createResponse.error({
+        res,
+        status: 500,
+        message: "Error during Google login",
+      });
     }
   },
 };

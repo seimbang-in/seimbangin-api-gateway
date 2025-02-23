@@ -1,44 +1,38 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { createResponse } from "../utils/response";
 
-const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
+export const authenticateJWT = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(" ")[1];
-
-  if (!token) {
-    createResponse.error({
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return createResponse.error({
       res,
       status: 401,
       message: "Unauthorized",
     });
-    return;
   }
 
+  const token = authHeader.split(" ")[1];
   const jwtSecret = process.env.JWT_SECRET;
 
   if (!jwtSecret) {
-    res.status(500).send({
-      error: "Internal Server Error, JWT LOM DISET COKK",
-    });
-
-    return;
+    return res.status(500).json({ error: "JWT_SECRET is not set" });
   }
 
-  jwt.verify(token, jwtSecret, (err: any, user: any) => {
+  jwt.verify(token, jwtSecret, (err, user) => {
     if (err) {
-      createResponse.error({
+      return createResponse.error({
         res,
         status: 403,
-        message: "Forbidden",
+        message: "Forbidden: Invalid Token",
       });
-
-      return;
     }
-
     req.user = user;
     next();
   });
 };
-
-export default authenticateJWT;
