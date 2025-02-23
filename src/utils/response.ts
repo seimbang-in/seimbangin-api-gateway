@@ -5,20 +5,27 @@ interface SuccessResponse {
   message: string;
   data?: any;
   meta?: any;
+  status?: number; // Menambahkan status opsional untuk success response
 }
 
 interface ErrorResponse {
   res: Response;
-  status: number;
+  status?: number; // Biar bisa default ke 500
   message: string;
   data?: any;
 }
 
 export const createResponse = {
-  success: ({ res, message, data, meta }: SuccessResponse) => {
-    res.json({
+  success: ({
+    res,
+    message,
+    data = null,
+    meta = null,
+    status = 200, // Default ke 200, tapi bisa diubah
+  }: SuccessResponse) => {
+    res.status(status).json({
       status: "success",
-      code: 200,
+      code: status,
       message,
       data,
       meta,
@@ -27,7 +34,7 @@ export const createResponse = {
 
   error: ({
     res,
-    status = 500,
+    status = 500, // Default ke 500
     message = "An error occurred",
     data = null,
   }: ErrorResponse) => {

@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import authenticateJWT from "../middleware/jwt";
 import ocrController from "../controllers/ocr";
-import { multerUpload } from "../utils/googleCloudStorageHelper";
+import { multerUpload } from "../utils/localStorageHelper";
 
 const ocrRouter = Router();
 
@@ -10,7 +10,7 @@ ocrRouter.post(
   "/",
   authenticateJWT,
   multerUpload.single("photo"),
-  ocrController.post,
+  ocrController.post
 );
 
 export default ocrRouter;

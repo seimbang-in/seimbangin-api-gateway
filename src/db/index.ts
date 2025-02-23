@@ -16,9 +16,6 @@ export const poolConnection = mysql.createPool({
   password: password || "",
   database: database || "",
   multipleStatements: true,
-  ssl: {
-    rejectUnauthorized: false,
-  },
 });
 
 // create a drizzle instance
