@@ -1,25 +1,14 @@
 import { hash, compare, genSalt } from "bcryptjs";
 import { sql } from "drizzle-orm";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import db from "../db";
 import { usersTable } from "../db/schema";
 import { validationResult } from "express-validator";
 import { createResponse } from "../utils/response";
 
-const generateToken = (user: any) => {
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret) throw new Error("JWT_SECRET is not set");
-
-  return jwt.sign(
-    { id: user.id, email: user.email, googleId: user.googleId },
-    jwtSecret,
-    { expiresIn: "7d" }
-  );
-};
-
 const authController = {
-  register: async (req: Request, res: Response) => {
+  register: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -31,14 +20,15 @@ const authController = {
         });
       }
 
-      const { full_name, username, email, password } = req.body;
+      const { full_name, username, email, password, age } = req.body;
 
-      const existingUser = await db
+      // Cek apakah email sudah terdaftar
+      const emailExists = await db
         .select()
         .from(usersTable)
         .where(sql`${usersTable.email} = ${email}`);
 
-      if (existingUser.length > 0) {
+      if (emailExists.length > 0) {
         return createResponse.error({
           res,
           status: 400,
@@ -46,45 +36,31 @@ const authController = {
         });
       }
 
-      if (!password) {
-        return createResponse.error({
-          res,
-          status: 400,
-          message: "Password is required",
-        });
-      }
-
+      // Hash password
       const salt = await genSalt(10);
       const hashedPassword = await hash(password, salt);
 
-      const [newUser] = await db
-        .insert(usersTable)
-        .values({
-          full_name,
-          username,
-          email,
-          password: hashedPassword,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .returning();
+      await db.insert(usersTable).values({
+        full_name,
+        username,
+        email,
+        age,
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       return createResponse.success({
         res,
         message: "User registered successfully",
-        data: { token: generateToken(newUser) },
       });
+
     } catch (error) {
-      console.error("Register Error:", error);
-      return createResponse.error({
-        res,
-        status: 500,
-        message: "Internal Server Error",
-      });
+      next(error); // Lempar error ke middleware
     }
   },
 
-  login: async (req: Request, res: Response) => {
+  login: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -96,7 +72,7 @@ const authController = {
         });
       }
 
-      const { identifier, password } = req.body;
+      const { password, identifier } = req.body;
 
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
       const column = isEmail ? usersTable.email : usersTable.username;
@@ -116,14 +92,6 @@ const authController = {
 
       const existingUser = queryUser[0];
 
-      if (!existingUser.password) {
-        return createResponse.error({
-          res,
-          status: 400,
-          message: "This account uses Google Login. Please sign in with Google.",
-        });
-      }
-
       const passwordMatch = await compare(password, existingUser.password);
       if (!passwordMatch) {
         return createResponse.error({
@@ -133,36 +101,23 @@ const authController = {
         });
       }
 
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        res.status(500).json({ error: "Internal Server Error, JWT belum di-set" });
+        return;
+      }
+
+      const expiresIn = 604800;
+      const token = jwt.sign({ id: existingUser.id }, jwtSecret, { expiresIn });
+
       return createResponse.success({
         res,
         message: "Login Success",
-        data: { token: generateToken(existingUser) },
+        data: { token, expiresIn },
       });
-    } catch (error) {
-      console.error("Login Error:", error);
-      return createResponse.error({
-        res,
-        status: 500,
-        message: "Internal Server Error",
-      });
-    }
-  },
 
-  googleCallback: async (req: Request, res: Response) => {
-    try {
-      const user = req.user as any;
-      const token = generateToken(user);
-      return createResponse.success({
-        res,
-        message: "Google Login Success",
-        data: { token },
-      });
     } catch (error) {
-      return createResponse.error({
-        res,
-        status: 500,
-        message: "Error during Google login",
-      });
+      next(error); // Lempar error ke middleware
     }
   },
 };

@@ -1,21 +1,16 @@
 import { Router } from "express";
-import passport from "../config/passport";
 import authController from "../controllers/auth";
+import devAuthController from "../controllers/authDev";
 
-const router = Router();
+const authRouter = Router();
+const devAuthRouter = Router();
 
-router.post("/register", authController.register);
-router.post("/login", authController.login);
+import validate from "../middleware/validate";
 
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+authRouter.post("/login", validate.login, authController.login);
+authRouter.post("/register", validate.register, authController.register);
 
-router.get(
-  "/google/callback",
-  passport.authenticate("google", { session: false }),
-  authController.googleCallback
-);
+authRouter.post("/dev/login", validate.login, devAuthController.login);
+authRouter.post("/dev/register", validate.register, devAuthController.register);
 
-export default router;
+export default authRouter;

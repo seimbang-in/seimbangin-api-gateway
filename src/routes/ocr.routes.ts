@@ -1,8 +1,8 @@
 import { Router } from "express";
 
 import authenticateJWT from "../middleware/jwt";
-import multimodalController from "../controllers/ocr";
-import { multerUpload } from "../utils/googleCloudStorageHelper";
+import ocrController from "../controllers/ocr";
+import { multerUpload } from "../utils/localStorageHelper";
 
 const ocrRouter = Router();
 
@@ -10,9 +10,7 @@ ocrRouter.post(
   "/",
   authenticateJWT,
   multerUpload.single("photo"),
-  multimodalController.post,
+  ocrController.post
 );
-
-ocrRouter.get("/api-key", authenticateJWT, multimodalController.get);
 
 export default ocrRouter;
