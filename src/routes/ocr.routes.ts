@@ -1,16 +1,10 @@
-import { Router } from "express";
-
-import authenticateJWT from "../middleware/jwt";
-import ocrController from "../controllers/ocr";
+import express from "express";
 import { multerUpload } from "../utils/localStorageHelper";
+import ocrController from "../controllers/ocr";
 
-const ocrRouter = Router();
+const router = express.Router();
 
-ocrRouter.post(
-  "/",
-  authenticateJWT,
-  multerUpload.single("photo"),
-  ocrController.post
-);
+// Endpoint untuk upload gambar dan OCR
+router.post("/upload", multerUpload.single("photo"), ocrController.post);
 
-export default ocrRouter;
+export default router;

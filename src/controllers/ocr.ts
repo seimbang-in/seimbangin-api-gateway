@@ -1,73 +1,81 @@
-import { createResponse } from "../utils/response";
 import { Request, Response } from "express";
-import { ITEM_CLASIFICATION_URL, OCR_URL } from "../static/url";
-import axios from "axios";
-import FormData from "form-data";
+import fs from "fs";
+import dotenv from "dotenv";
+import OpenAI from "openai";
+import { createResponse } from "../utils/response";
 
-const getOCR = async (image: Express.Multer.File) => {
-  try {
-    const formData = new FormData();
-    formData.append("file", image.buffer, image.originalname);
+dotenv.config();
 
-    const response = await axios.post(`${OCR_URL}/predict-by-file`, formData, {
-      headers: {
-        ...formData.getHeaders(),
-      },
-    });
-
-    const { data } = response;
-    return data;
-  } catch (error) {
-    console.log(error, "ERROR");
-    return null;
-  }
-};
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const ocrController = {
   post: async (req: Request, res: Response) => {
-    // get image data
-    const photo = req.file;
-
-    if (!photo) {
-      createResponse.error({
-        status: 400,
-        res,
-        message: "Please upload a file",
-      });
-      return;
-    }
-    const ocrData = await getOCR(photo);
-
-    if (!ocrData) {
-      createResponse.error({
-        status: 500,
-        res,
-        message: "An error occurred while processing the file",
-      });
-      return;
-    }
-    const items = ocrData.data.items;
-
     try {
-      const clasifiedItems = await axios.post(
-        `${ITEM_CLASIFICATION_URL}/text/classify`,
-        { items },
-      );
+      console.log("🖼️ Processing OCR...");
 
+      // Periksa apakah ada file yang diunggah
+      const photo = req.file;
+      if (!photo) {
+        return createResponse.error({
+          status: 400,
+          res,
+          message: "Please upload a file",
+        });
+      }
+
+      console.log("📂 File uploaded:", photo.path);
+
+      // Periksa apakah file ada di sistem
+      if (!fs.existsSync(photo.path)) {
+        console.error("❌ File not found after upload!");
+        return createResponse.error({
+          status: 500,
+          res,
+          message: "Uploaded file not found",
+        });
+      }
+
+      console.log("✅ File found, converting to Base64...");
+
+      // Baca file sebagai Base64
+      const imageBase64 = fs.readFileSync(photo.path).toString("base64");
+      const imageData = `data:image/png;base64,${imageBase64}`;
+
+      console.log("🚀 Sending image to OpenAI...");
+
+      // Kirim ke OpenAI GPT-4 Vision
+      const response = await openai.chat.completions.create({
+        model: "gpt-4-turbo-2024-04-09",
+        messages: [
+          { role: "system", content: "Extract text from the receipt image and return itemized details with prices." },
+          { 
+            role: "user", 
+            content: [
+              { type: "text", text: "Extract the text from this receipt." },
+              { type: "image_url", image_url: { url: imageData } }
+            ]
+          }
+        ],
+        max_tokens: 500,
+      });
+
+      // Ambil hasil ekstraksi teks
+      const extractedText = response.choices[0]?.message?.content || "No text extracted";
+
+      console.log("✅ OCR Success!");
       createResponse.success({
         res,
         message: "OCR data retrieved successfully",
-        data: clasifiedItems.data,
+        data: extractedText,
       });
-      return;
+
     } catch (error) {
-      console.log("ERROR SAAT MENGIRIM DATA KE ITEM CLASIFICATION API");
+      console.error("❌ ERROR processing OCR:", error);
       createResponse.error({
         status: 500,
         res,
-        message: "An error occurred while processing the file",
+        message: "Failed to process receipt",
       });
-      return;
     }
   },
 };
