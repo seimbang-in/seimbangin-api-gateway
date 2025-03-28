@@ -36,8 +36,8 @@ export const usersTable = mysqlTable("users", {
   id: bigint({ mode: "number" }).primaryKey().autoincrement(),
   role: int().notNull().default(0).notNull(), // 0 for user, 1 for admin
   full_name: varchar({ length: 255 }).notNull(),
-  age: int().notNull().default(17),
-  phone: varchar({ length: 15 }).notNull(), //
+  age: int(),
+  phone: varchar({ length: 15 }).notNull().unique(), //
   balance: decimal({ precision: 16, scale: 2 }).notNull().default("0.0"),
   username: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
