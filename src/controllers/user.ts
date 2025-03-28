@@ -1,8 +1,8 @@
+import { eq, sql } from "drizzle-orm";
 import { Request, Response } from "express";
-import { gcsHelper } from "../utils/googleCloudStorageHelper";
 import db from "../db";
 import { transactionsTable, userFinancial, usersTable } from "../db/schema";
-import { eq, sql } from "drizzle-orm";
+import { gcsHelper } from "../utils/googleCloudStorageHelper";
 
 export const UserController = {
   detail: async (req: Request, res: Response) => {
@@ -26,6 +26,9 @@ export const UserController = {
           username: usersTable.username,
           email: usersTable.email,
           profilePicture: usersTable.profilePicture,
+          university: usersTable.university,
+          gender: usersTable.gender,
+          birth_date: usersTable.birth_date,
           createdAt: usersTable.createdAt,
           updatedAt: usersTable.updatedAt,
           finance_profile: {
@@ -137,7 +140,7 @@ export const UserController = {
   update: async (req: Request, res: Response) => {
     const userId = req.user.id;
 
-    const { full_name, age, balance, username, email } = req.body;
+    const { full_name, age, balance, username, email, university, gender, birth_date } = req.body;
 
     const payload = {
       full_name,
@@ -145,6 +148,8 @@ export const UserController = {
       balance,
       username,
       email,
+      university,
+      gender,
     };
 
     try {
