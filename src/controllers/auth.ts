@@ -1,6 +1,6 @@
 import { compare, genSalt, hash } from "bcryptjs";
 import { sql } from "drizzle-orm";
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 import db from "../db";
@@ -109,6 +109,8 @@ const authController = {
         status: 404,
         message: "User not found",
       });
+
+      return;
     }
 
     const existingUser = queryUser[0];

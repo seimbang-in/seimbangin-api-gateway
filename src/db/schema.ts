@@ -39,7 +39,7 @@ export const usersTable = mysqlTable("users", {
   age: int(),
   phone: varchar({ length: 15 }).unique(), //
   balance: decimal({ precision: 16, scale: 2 }).notNull().default("0.0"),
-  username: varchar({ length: 255 }).notNull(),
+  username: varchar({ length: 255 }).notNull().unique(),
   email: varchar({ length: 255 }).notNull().unique(),
   password: varchar({ length: 255 }).notNull(),
   profilePicture: varchar("profile_picture", { length: 256 }),

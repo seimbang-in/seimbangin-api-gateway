@@ -140,7 +140,7 @@ export const UserController = {
   update: async (req: Request, res: Response) => {
     const userId = req.user.id;
 
-    const { full_name, age, balance, username, email, university, gender, birth_date } = req.body;
+    const { full_name, age, balance, username, email, university, gender, birth_date, phone } = req.body;
 
     const payload = {
       full_name,
@@ -150,6 +150,8 @@ export const UserController = {
       email,
       university,
       gender,
+      phone,
+      birth_date,
     };
 
     try {
