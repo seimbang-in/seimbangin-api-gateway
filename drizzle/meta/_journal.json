@@ -155,6 +155,13 @@
       "when": 1743173759507,
       "tag": "0021_easy_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1743177394005,
+      "tag": "0022_strange_queen_noir",
+      "breakpoints": true
     }
   ]
 }
