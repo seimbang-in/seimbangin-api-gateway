@@ -9,6 +9,8 @@ import authDevRouter from "./routes/dev/authDev.routes";
 import cors from "cors";
 import advisorRouter from "./routes/advisor.routes";
 import ocrRouter from "./routes/ocr.routes";
+import oauthRouter from "./routes/oauth.routes";
+import "./config/passport";
 import { create } from "express-handlebars";
 
 // intialize express
@@ -28,6 +30,7 @@ app.set('views', path.resolve(__dirname, '../src/views'));
 app.use(express.static(path.resolve(__dirname, '../public/')));
 
 app.use("/auth", authRouter);
+app.use("/auth/google", oauthRouter); 
 app.use("/dev/auth", authDevRouter);
 app.use("/user", userRouter);
 app.use("/transaction", transactionRouter);
