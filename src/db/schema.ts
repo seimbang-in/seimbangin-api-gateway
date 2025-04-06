@@ -38,6 +38,7 @@ export const usersTable = mysqlTable("users", {
   username: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
   password: varchar({ length: 255 }).notNull(),
+  googleId: varchar({ length: 255 }).notNull().default(""),
   profilePicture: varchar("profile_picture", { length: 256 }),
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
