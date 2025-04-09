@@ -3,7 +3,7 @@ import express, { Express, Request, Response } from "express";
 import { create } from "express-handlebars";
 import path from "path";
 import "./config/passport";
-import authenticateJWT from "./middleware/jwt";
+import { authenticateJWT } from "./middleware/jwt";
 import advisorRouter from "./routes/advisor.routes";
 import articleRouter from "./routes/article.route";
 import authRouter from "./routes/auth.routes";
@@ -31,7 +31,7 @@ app.set('views', path.resolve(__dirname, '../src/views'));
 app.use(express.static(path.resolve(__dirname, '../public/')));
 
 app.use("/auth", authRouter);
-app.use("/auth/google", oauthRouter); 
+app.use("/auth/google", oauthRouter);
 app.use("/dev/auth", authDevRouter);
 app.use("/user", userRouter);
 app.use("/transaction", transactionRouter);

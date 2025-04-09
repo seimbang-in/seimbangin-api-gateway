@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import authenticateJWT from "../middleware/jwt";
 import ocrController from "../controllers/ocr";
+import { authenticateJWT } from "../middleware/jwt";
 import { multerUpload } from "../utils/googleCloudStorageHelper";
 
 const ocrRouter = Router();

@@ -20,6 +20,22 @@ const articleController = {
             return;
         }
 
+        // check if the slug already exists
+        const existingArticle = await db.select().from(articles).where(eq(articles.slug, slug));
+
+        if (existingArticle.length > 0) {
+            createResponse.error({
+
+                res,
+                status: 400,
+                message: "Article with this slug already exists",
+            });
+
+            return;
+
+        }
+
+
         try {
             const thumbnailUrl = await gcsHelper.uploadFile({
                 file: thumbnail,
@@ -190,6 +206,19 @@ const articleController = {
                 res,
                 status: 400,
                 message: "Title, content and slug are required",
+            });
+
+            return;
+        }
+
+        const existingArticle = await db.select().from(articles).where(eq(articles.slug, slug));
+
+        if (existingArticle.length > 0) {
+            createResponse.error({
+
+                res,
+                status: 400,
+                message: "Article with this slug already exists",
             });
 
             return;
