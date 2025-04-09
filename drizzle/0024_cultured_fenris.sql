@@ -1,1 +1,0 @@
-ALTER TABLE `users` ADD `googleId` varchar(255) DEFAULT '' NOT NULL;

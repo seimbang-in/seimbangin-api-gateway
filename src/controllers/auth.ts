@@ -115,7 +115,18 @@ const authController = {
 
     const existingUser = queryUser[0];
 
-    const passwordMatch = await compare(password, existingUser.password);
+    const existingUserPassword = existingUser.password;
+
+    if (!existingUserPassword) {
+      createResponse.error({
+        res,
+        status: 401,
+        message: "Invalid credentials",
+      });
+      return;
+    }
+
+    const passwordMatch = await compare(password, existingUserPassword);
 
     if (!passwordMatch) {
       createResponse.error({

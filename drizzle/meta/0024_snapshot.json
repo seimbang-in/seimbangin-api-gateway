@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "e9815e9a-5719-480a-a7ec-2b57f97bea25",
+  "id": "524aeb24-266b-435e-bc74-95704bc58b07",
   "prevId": "2ff23db2-f811-44f2-b4d5-1db7c6bb5c84",
   "tables": {
     "transaction_items": {
@@ -342,16 +342,15 @@
           "name": "password",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "googleId": {
           "name": "googleId",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
+          "notNull": false,
+          "autoincrement": false
         },
         "profile_picture": {
           "name": "profile_picture",
@@ -424,6 +423,12 @@
           "name": "users_email_unique",
           "columns": [
             "email"
+          ]
+        },
+        "users_googleId_unique": {
+          "name": "users_googleId_unique",
+          "columns": [
+            "googleId"
           ]
         }
       },
