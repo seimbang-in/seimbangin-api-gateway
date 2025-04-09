@@ -124,8 +124,20 @@ const authController = {
 
     const existingUser = queryUser[0];
 
+
+    const existingUserPassword = existingUser.password;
+
+    if (!existingUserPassword) {
+      createResponse.error({
+        res,
+        status: 401,
+        message: "Invalid credentials",
+      });
+      return;
+    }
+
     // Cek kecocokan password dengan hash
-    const passwordMatch = await compare(decryptedPassword, existingUser.password);
+    const passwordMatch = await compare(decryptedPassword, existingUserPassword);
 
     if (!passwordMatch) {
       createResponse.error({

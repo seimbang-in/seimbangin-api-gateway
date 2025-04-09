@@ -41,8 +41,8 @@ export const usersTable = mysqlTable("users", {
   balance: decimal({ precision: 16, scale: 2 }).notNull().default("0.0"),
   username: varchar({ length: 255 }).notNull().unique(),
   email: varchar({ length: 255 }).notNull().unique(),
-  password: varchar({ length: 255 }).notNull(),
-  googleId: varchar({ length: 255 }).notNull().default(""),
+  password: varchar({ length: 255 }),
+  googleId: varchar({ length: 255 }).unique(),
   profilePicture: varchar("profile_picture", { length: 256 }),
 
   // Onboarding
