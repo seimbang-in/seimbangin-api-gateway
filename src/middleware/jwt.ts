@@ -41,4 +41,56 @@ const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-export default authenticateJWT;
+const authenticateAdminJWT = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    createResponse.error({
+      res,
+      status: 401,
+      message: "Unauthorized",
+    });
+    return;
+  }
+
+  const jwtSecret = process.env.JWT_SECRET;
+
+  if (!jwtSecret) {
+    res.status(500).send({
+      error: "Internal Server Error, JWT LOM DISET COKK",
+    });
+
+    return;
+  }
+
+  jwt.verify(token, jwtSecret, (err: any, user: any) => {
+    if (err) {
+      createResponse.error({
+        res,
+        status: 403,
+        message: "Forbidden",
+      });
+
+      return;
+    }
+
+    // check if user is admin
+    if (user.role != 1) {
+      createResponse.error({
+        res,
+        status: 403,
+        message: "Forbidden",
+      });
+
+      return;
+    }
+
+    req.user = user;
+    next();
+  });
+};
+
+
+export { authenticateAdminJWT, authenticateJWT };
+

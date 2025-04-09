@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import authenticateJWT from "../middleware/jwt";
 import { advisorController } from "../controllers/advisor";
+import { authenticateJWT } from "../middleware/jwt";
 
 const advisorRouter = Router();
 
