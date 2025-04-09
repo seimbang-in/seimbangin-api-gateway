@@ -42,6 +42,7 @@ export const usersTable = mysqlTable("users", {
   username: varchar({ length: 255 }).notNull().unique(),
   email: varchar({ length: 255 }).notNull().unique(),
   password: varchar({ length: 255 }).notNull(),
+  googleId: varchar({ length: 255 }).notNull().default(""),
   profilePicture: varchar("profile_picture", { length: 256 }),
 
   // Onboarding
