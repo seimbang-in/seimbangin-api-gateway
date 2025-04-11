@@ -1,10 +1,10 @@
-import { hash, compare, genSalt } from "bcryptjs";
+import { compare, genSalt, hash } from "bcryptjs";
 import { sql } from "drizzle-orm";
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
+import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 import db from "../db";
 import { usersTable } from "../db/schema";
-import { validationResult } from "express-validator";
 import { createResponse } from "../utils/response";
 
 const authController = {
@@ -39,7 +39,7 @@ const authController = {
     }
 
     // destructure the required fields
-    const { full_name, username, email, password, age } = req.body;
+    const { full_name, email, password, username, phone } = req.body;
 
     try {
       // hash the password
@@ -50,9 +50,9 @@ const authController = {
         // insert the user into the database
         await db.insert(usersTable).values({
           full_name,
-          username,
           email,
-          age,
+          phone,
+          username,
           password: hashedPassword,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -95,7 +95,8 @@ const authController = {
     const { password, identifier } = req.body;
 
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
-    const column = isEmail ? usersTable.email : usersTable.username;
+    const isPhone = /^\d+$/.test(identifier);
+    const column = isEmail ? usersTable.email : isPhone ? usersTable.phone : usersTable.username;
 
     const queryUser = await db
       .select()
@@ -108,11 +109,24 @@ const authController = {
         status: 404,
         message: "User not found",
       });
+
+      return;
     }
 
     const existingUser = queryUser[0];
 
-    const passwordMatch = await compare(password, existingUser.password);
+    const existingUserPassword = existingUser.password;
+
+    if (!existingUserPassword) {
+      createResponse.error({
+        res,
+        status: 401,
+        message: "Invalid credentials",
+      });
+      return;
+    }
+
+    const passwordMatch = await compare(password, existingUserPassword);
 
     if (!passwordMatch) {
       createResponse.error({

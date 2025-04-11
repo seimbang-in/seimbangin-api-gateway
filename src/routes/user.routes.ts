@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { multerUpload } from "../utils/googleCloudStorageHelper";
 import { UserController } from "../controllers/user";
-import authenticateJWT from "../middleware/jwt";
+import { authenticateJWT } from "../middleware/jwt";
+import { multerUpload } from "../utils/googleCloudStorageHelper";
 
 const userRouter = Router();
 

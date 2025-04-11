@@ -127,6 +127,62 @@
       "when": 1733117636225,
       "tag": "0017_conscious_starbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1743169552437,
+      "tag": "0018_massive_warpath",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1743169967088,
+      "tag": "0019_wandering_adam_destine",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1743173574873,
+      "tag": "0020_deep_mandroid",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1743173759507,
+      "tag": "0021_easy_thor",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1743177394005,
+      "tag": "0022_strange_queen_noir",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1743179290361,
+      "tag": "0023_nifty_silvermane",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1744211438300,
+      "tag": "0024_magical_the_fallen",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1744213201728,
+      "tag": "0025_handy_albert_cleary",
+      "breakpoints": true
     }
   ]
 }

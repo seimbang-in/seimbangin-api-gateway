@@ -1,11 +1,11 @@
+import { compare, genSalt, hash } from "bcryptjs";
 import { createDecipheriv } from "crypto"; // Import decryption from Node.js
-import { hash, compare, genSalt } from "bcryptjs";
 import { sql } from "drizzle-orm";
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 import db from "../db";
 import { usersTable } from "../db/schema";
-import { validationResult } from "express-validator";
 import { createResponse } from "../utils/response";
 
 // Kunci dan konfigurasi untuk dekripsi (harus sesuai dengan Flutter)
@@ -49,7 +49,7 @@ const authController = {
       return;
     }
 
-    const { full_name, username, email, password, age } = req.body;
+    const { full_name, username, email, password, age, phone } = req.body;
 
     try {
       const salt = await genSalt(10);
@@ -60,6 +60,7 @@ const authController = {
         username,
         email,
         age,
+        phone,
         password: hashedPassword,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -123,8 +124,20 @@ const authController = {
 
     const existingUser = queryUser[0];
 
+
+    const existingUserPassword = existingUser.password;
+
+    if (!existingUserPassword) {
+      createResponse.error({
+        res,
+        status: 401,
+        message: "Invalid credentials",
+      });
+      return;
+    }
+
     // Cek kecocokan password dengan hash
-    const passwordMatch = await compare(decryptedPassword, existingUser.password);
+    const passwordMatch = await compare(decryptedPassword, existingUserPassword);
 
     if (!passwordMatch) {
       createResponse.error({

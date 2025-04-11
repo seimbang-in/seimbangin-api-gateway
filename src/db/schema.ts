@@ -1,15 +1,16 @@
+import { sql } from "drizzle-orm";
 import {
-  bigint,
+  bigint, boolean, date,
+  datetime,
   decimal,
   int,
   mysqlEnum,
   mysqlTable,
+  serial,
   text,
   timestamp,
-  varchar,
+  varchar
 } from "drizzle-orm/mysql-core";
-import { relations } from "drizzle-orm";
-import { send } from "process";
 
 const transactionCategoryEnums = mysqlEnum("category", [
   "food",
@@ -28,17 +29,27 @@ const riskManagementEnums = mysqlEnum("risk_management", [
   "high",
 ]);
 
+const genderEnums = mysqlEnum("gender", ["male", "female", "other"]);
+
 // user table schema
 export const usersTable = mysqlTable("users", {
   id: bigint({ mode: "number" }).primaryKey().autoincrement(),
   role: int().notNull().default(0).notNull(), // 0 for user, 1 for admin
   full_name: varchar({ length: 255 }).notNull(),
-  age: int().notNull().default(17),
+  age: int(),
+  phone: varchar({ length: 15 }).unique(), //
   balance: decimal({ precision: 16, scale: 2 }).notNull().default("0.0"),
-  username: varchar({ length: 255 }).notNull(),
+  username: varchar({ length: 255 }).notNull().unique(),
   email: varchar({ length: 255 }).notNull().unique(),
-  password: varchar({ length: 255 }).notNull(),
+  password: varchar({ length: 255 }),
+  googleId: varchar({ length: 255 }).unique(),
   profilePicture: varchar("profile_picture", { length: 256 }),
+
+  // Onboarding
+  gender: genderEnums.default("other"),
+  birth_date: date(),
+  university: varchar({ length: 255 }), // Optional
+
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
 });
@@ -83,16 +94,27 @@ export const itemsTable = mysqlTable("transaction_items", {
   updatedAt: timestamp("updated_at"),
 });
 
-export const transactionRelations = relations(transactionsTable, ({ one }) => ({
-  items: one(itemsTable, {
-    fields: [transactionsTable.id],
-    references: [itemsTable.transaction_id],
-  }),
-}));
+export const articles = mysqlTable('articles', {
+  id: bigint({ mode: "number" }).primaryKey().autoincrement(),
+  title: varchar('title', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 255 }).notNull().unique(),
+  content: text('content').notNull(),
+  thumbnailUrl: varchar('thumbnail_url', { length: 255 }),
+  publishedAt: datetime('published_at', { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: datetime('updated_at', { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+  isPublished: boolean('is_published').default(true),
+});
 
-export const itemsRelation = relations(itemsTable, ({ one }) => ({
-  transactionsTable: one(transactionsTable, {
-    fields: [itemsTable.transaction_id],
-    references: [transactionsTable.id],
-  }),
-}));
+// export const transactionRelations = relations(transactionsTable, ({ one }) => ({
+//   items: one(itemsTable, {
+//     fields: [transactionsTable.id],
+//     references: [itemsTable.transaction_id],
+//   }),
+// }));
+
+// export const itemsRelation = relations(itemsTable, ({ one }) => ({
+//   transactionsTable: one(transactionsTable, {
+//     fields: [itemsTable.transaction_id],
+//     references: [transactionsTable.id],
+//   }),
+// }));
