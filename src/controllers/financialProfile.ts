@@ -1,9 +1,9 @@
+import { eq } from "drizzle-orm";
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
 import db from "../db";
 import { userFinancial, usersTable } from "../db/schema";
-import { validationResult } from "express-validator";
 import { createResponse } from "../utils/response";
-import { eq } from "drizzle-orm";
 
 export const financialProfileController = {
   update: async (req: Request, res: Response) => {
@@ -23,6 +23,7 @@ export const financialProfileController = {
 
     // if user don't have a financial profile, create one
     if (!user || !user.length || !user[0].user_financial_profile) {
+      console.log("User does not have a financial profile, creating one...");
       await db.insert(userFinancial).values({
         user_id: req.user.id,
       });

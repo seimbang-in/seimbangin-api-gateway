@@ -66,6 +66,7 @@ const authController = {
         return;
       }
 
+      // create user financial profile
       createResponse.success({
         res,
         message: "User registered successfully",

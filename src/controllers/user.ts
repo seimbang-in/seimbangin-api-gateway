@@ -37,11 +37,13 @@ export const UserController = {
             debt: userFinancial.debt,
             financial_goals: userFinancial.financial_goals,
             risk_management: userFinancial.risk_management,
+            total_income: userFinancial.total_income,
+            total_outcome: userFinancial.total_outcome,
           },
         })
         .from(usersTable)
         .where(eq(usersTable.id, userId))
-        .leftJoin(userFinancial, eq(usersTable.id, userFinancial.user_id))
+        .innerJoin(userFinancial, eq(usersTable.id, userFinancial.user_id))
         .then((rows) => rows[0]);
 
       // const thisMonthIncome = await db.select().from(transactionsTable).where({

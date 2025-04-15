@@ -48,6 +48,22 @@ async function updateUserIncomeOutcome(userId: number) {
       .from(transactionsTable)
       .where(and(eq(transactionsTable.user_id, userId), eq(transactionsTable.type, 0)));
 
+    console.log(income, outcome, userId, "INCOME OUTCOME");
+
+    const user = await db
+      .select()
+      .from(usersTable)
+      .leftJoin(userFinancial, eq(usersTable.id, userFinancial.user_id))
+      .where(eq(usersTable.id, userId));
+
+    // if user don't have a financial profile, create one
+    if (!user || !user.length || !user[0].user_financial_profile) {
+      console.log("User does not have a financial profile, creating one...");
+      await db.insert(userFinancial).values({
+        user_id: userId,
+      });
+    }
+
     await db.update(userFinancial)
       .set({
         total_income: (Number(income[0].sum) || 0).toString(),
@@ -65,7 +81,6 @@ async function updateUserIncomeOutcome(userId: number) {
 
 export const transactionController = {
   create: async (req: Request, res: Response) => {
-    // Validasi Request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       createResponse.error({
@@ -77,6 +92,7 @@ export const transactionController = {
     }
 
     const { type, description, items, category } = req.body;
+
 
     // Validasi Items
     if (!Array.isArray(items) || items.length === 0) {
@@ -169,7 +185,7 @@ export const transactionController = {
 
         return;
       }
-
+      console.log("id", req.user.id);
       // Update User Income and Outcome
       const incomeOutcomeUpdate = await updateUserIncomeOutcome(req.user.id);
       if (!incomeOutcomeUpdate.success) {
