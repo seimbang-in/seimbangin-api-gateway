@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
-import db from "../db";
-import { itemsTable, transactionsTable, usersTable } from "../db/schema";
-import { validationResult } from "express-validator";
-import { count } from "drizzle-orm";
-import { createResponse } from "../utils/response";
+import { and, count, sql } from "drizzle-orm";
 import { eq } from "drizzle-orm/mysql-core/expressions";
+import { Request, Response } from "express";
+import { validationResult } from "express-validator";
+import db from "../db";
+import { itemsTable, transactionsTable, userFinancial, usersTable } from "../db/schema";
+import { createResponse } from "../utils/response";
 
 const createNewBalance = ({
   type,
@@ -38,23 +38,68 @@ const updateBalance = async ({ newBalance, userId }: any) => {
     return { success: false, message: "Error updating balance" };
   }
 };
+async function updateUserIncomeOutcome(userId: number) {
+  try {
+    const income = await db.select({ sum: sql`SUM(amount)` })
+      .from(transactionsTable)
+      .where(and(eq(transactionsTable.user_id, userId), eq(transactionsTable.type, 1)));
+
+    const outcome = await db.select({ sum: sql`SUM(amount)` })
+      .from(transactionsTable)
+      .where(and(eq(transactionsTable.user_id, userId), eq(transactionsTable.type, 0)));
+
+    console.log(income, outcome, userId, "INCOME OUTCOME");
+
+    const user = await db
+      .select()
+      .from(usersTable)
+      .leftJoin(userFinancial, eq(usersTable.id, userFinancial.user_id))
+      .where(eq(usersTable.id, userId));
+
+    // if user don't have a financial profile, create one
+    if (!user || !user.length || !user[0].user_financial_profile) {
+      console.log("User does not have a financial profile, creating one...");
+      await db.insert(userFinancial).values({
+        user_id: userId,
+      });
+    }
+
+    await db.update(userFinancial)
+      .set({
+        total_income: (Number(income[0].sum) || 0).toString(),
+        total_outcome: (Number(outcome[0].sum) || 0).toString(),
+      })
+      .where(eq(userFinancial.user_id, userId));
+
+    return { success: true, message: "Income and outcome updated successfully" };
+  } catch (error) {
+    console.error("Error updating income and outcome:", error);
+    return { success: false, message: "Error updating income and outcome" };
+  }
+
+}
 
 export const transactionController = {
   create: async (req: Request, res: Response) => {
-    // Validasi Request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
+      createResponse.error({
+        res,
+        status: 422,
+        message: "Validation error",
+      });
       return;
     }
 
     const { type, description, items, category } = req.body;
 
+
     // Validasi Items
     if (!Array.isArray(items) || items.length === 0) {
-      res.status(400).json({
-        status: "error",
-        message: "Items cannot be empty",
+      createResponse.error({
+        res,
+        status: 400,
+        message: "Items must be an array and cannot be empty",
       });
 
       return;
@@ -66,8 +111,9 @@ export const transactionController = {
     });
 
     if (!user) {
-      res.status(404).send({
-        status: "error",
+      createResponse.error({
+        res,
+        status: 404,
         message: "User not found",
       });
       return;
@@ -82,13 +128,10 @@ export const transactionController = {
     );
 
     if (type === 1 && balance < totalAmount) {
-      res.status(400).send({
-        status: "error",
+      createResponse.error({
+        res,
+        status: 400,
         message: "Insufficient balance",
-        data: {
-          balance: Number(user.balance),
-          transaction_ammount: totalAmount,
-        },
       });
 
       return;
@@ -134,9 +177,22 @@ export const transactionController = {
       });
 
       if (!balanceUpdate.success) {
-        res.status(500).send({
-          status: "error",
+        createResponse.error({
+          res,
+          status: 500,
           message: "Error updating user balance",
+        });
+
+        return;
+      }
+      console.log("id", req.user.id);
+      // Update User Income and Outcome
+      const incomeOutcomeUpdate = await updateUserIncomeOutcome(req.user.id);
+      if (!incomeOutcomeUpdate.success) {
+        createResponse.error({
+          res,
+          status: 500,
+          message: "Error updating user income and outcome",
         });
 
         return;
@@ -271,6 +327,17 @@ export const transactionController = {
           res,
           status: 500,
           message: "Error deleting transaction",
+        });
+        return;
+      }
+
+      // Update User Income and Outcome
+      const incomeOutcomeUpdate = await updateUserIncomeOutcome(req.user.id);
+      if (!incomeOutcomeUpdate.success) {
+        createResponse.error({
+          res,
+          status: 500,
+          message: "Error updating user income and outcome",
         });
         return;
       }
