@@ -63,6 +63,8 @@ export const userFinancial = mysqlTable("user_financial_profile", {
   current_savings: decimal({ precision: 16, scale: 2 }),
   debt: decimal({ precision: 16, scale: 2 }),
   financial_goals: text(),
+  total_income: decimal({ precision: 16, scale: 2 }).default("0.0"),
+  total_outcome: decimal({ precision: 16, scale: 2 }).default("0.0"),
   risk_management: riskManagementEnums,
 });
 
