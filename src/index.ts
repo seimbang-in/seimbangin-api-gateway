@@ -13,6 +13,7 @@ import oauthRouter from "./routes/oauth.routes";
 import ocrRouter from "./routes/ocr.routes";
 import transactionRouter from "./routes/transaction.routes";
 import userRouter from "./routes/user.routes";
+import chatbotRoutes from "./routes/chatbot.routes";
 
 // intialize express
 const app: Express = express();
@@ -39,6 +40,7 @@ app.use("/financial-profile", financialProfileRouter);
 app.use("/advisor", advisorRouter);
 app.use("/ocr", ocrRouter);
 app.use('/articles', articleRouter);
+app.use("/chatbot", chatbotRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.render("home", {

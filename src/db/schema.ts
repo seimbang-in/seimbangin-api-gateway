@@ -105,6 +105,14 @@ export const articles = mysqlTable('articles', {
   isPublished: boolean('is_published').default(true),
 });
 
+export const chatHistoryTable = mysqlTable("chat_history", {
+  id: int("id").primaryKey().autoincrement(),
+  user_id: int("user_id").notNull(),
+  message: varchar("message", { length: 1000 }).notNull(),
+  sender: mysqlEnum("sender", ["advisor", "bot"]).notNull(),
+  created_at: timestamp("created_at").defaultNow(),
+});
+
 // export const transactionRelations = relations(transactionsTable, ({ one }) => ({
 //   items: one(itemsTable, {
 //     fields: [transactionsTable.id],
