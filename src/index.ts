@@ -1,5 +1,5 @@
 import cors from "cors";
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import { create } from "express-handlebars";
 import path from "path";
 import "./config/passport";
@@ -7,13 +7,14 @@ import { authenticateJWT } from "./middleware/jwt";
 import advisorRouter from "./routes/advisor.routes";
 import articleRouter from "./routes/article.route";
 import authRouter from "./routes/auth.routes";
+import chatbotRoutes from "./routes/chatbot.routes";
 import authDevRouter from "./routes/dev/authDev.routes";
 import financialProfileRouter from "./routes/financialProfile.routes";
 import oauthRouter from "./routes/oauth.routes";
 import ocrRouter from "./routes/ocr.routes";
 import transactionRouter from "./routes/transaction.routes";
 import userRouter from "./routes/user.routes";
-import chatbotRoutes from "./routes/chatbot.routes";
+import { createResponse } from "./utils/response";
 
 // intialize express
 const app: Express = express();
@@ -56,6 +57,19 @@ app.get("/protected", authenticateJWT, (req: Request, res: Response) => {
     },
   });
 });
+
+app.use(((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof SyntaxError && 'body' in err) {
+    console.error("Invalid JSON:", err.message);
+    createResponse.error({
+      res,
+      status: 400,
+      message: "Invalid JSON",
+    });
+    return;
+  }
+  next(err);
+}) as express.ErrorRequestHandler);
 
 app.listen(3000, () => {
   console.log(
