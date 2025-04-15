@@ -13,6 +13,7 @@ import {
 } from "drizzle-orm/mysql-core";
 
 const transactionCategoryEnums = mysqlEnum("category", [
+  // old category
   "food",
   "transportation",
   "utilities",
@@ -21,6 +22,16 @@ const transactionCategoryEnums = mysqlEnum("category", [
   "healthcare",
   "education",
   "others",
+  // new category
+  "health",
+  "gift",
+  "entertain",
+  "Parent",
+  "Freelance",
+  "salary",
+  "bonus",
+  "housing",
+  "internet",
 ]);
 
 const riskManagementEnums = mysqlEnum("risk_management", [
