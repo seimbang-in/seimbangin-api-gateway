@@ -12,7 +12,8 @@ import {
   varchar
 } from "drizzle-orm/mysql-core";
 
-const transactionCategoryEnums = mysqlEnum("category", [
+export const transactionCategoryEnums = mysqlEnum("category", [
+  // old category
   "food",
   "transportation",
   "utilities",
@@ -21,6 +22,16 @@ const transactionCategoryEnums = mysqlEnum("category", [
   "healthcare",
   "education",
   "others",
+  // new category
+  "health",
+  "gift",
+  "entertain",
+  "Parent",
+  "Freelance",
+  "salary",
+  "bonus",
+  "housing",
+  "internet",
 ]);
 
 const riskManagementEnums = mysqlEnum("risk_management", [
@@ -61,8 +72,10 @@ export const userFinancial = mysqlTable("user_financial_profile", {
     .notNull(),
   monthly_income: decimal({ precision: 16, scale: 2 }),
   current_savings: decimal({ precision: 16, scale: 2 }),
-  debt: decimal({ precision: 16, scale: 2 }),
+  debt: decimal({ precision: 16, scale: 2 }).default("0.0"),
   financial_goals: text(),
+  total_income: decimal({ precision: 16, scale: 2 }).default("0.0"),
+  total_outcome: decimal({ precision: 16, scale: 2 }).default("0.0"),
   risk_management: riskManagementEnums,
 });
 
@@ -72,7 +85,7 @@ export const transactionsTable = mysqlTable("transactions", {
     .references(() => usersTable.id)
     .notNull(),
   name: varchar({ length: 255 }).notNull().default("Transaction"),
-  type: int().notNull().default(0),
+  type: int().notNull().default(0),  // 0 for income, 1 for outcome
   amount: decimal().notNull().default("0.0"),
   category: transactionCategoryEnums.default("others"),
   description: text("description"),
@@ -103,6 +116,14 @@ export const articles = mysqlTable('articles', {
   publishedAt: datetime('published_at', { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
   updatedAt: datetime('updated_at', { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => sql`CURRENT_TIMESTAMP`),
   isPublished: boolean('is_published').default(true),
+});
+
+export const chatHistoryTable = mysqlTable("chat_history", {
+  id: int("id").primaryKey().autoincrement(),
+  user_id: int("user_id").notNull(),
+  message: varchar("message", { length: 1000 }).notNull(),
+  sender: mysqlEnum("sender", ["advisor", "bot"]).notNull(),
+  created_at: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 // export const transactionRelations = relations(transactionsTable, ({ one }) => ({

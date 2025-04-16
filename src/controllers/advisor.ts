@@ -3,7 +3,7 @@ import { createResponse } from "../utils/response";
 import { Request, Response } from "express";
 import { ADVISOR_URL } from "../static/url";
 import db from "../db";
-import { transactionsTable, userFinancial } from "../db/schema";
+import { transactionsTable, userFinancial, chatHistoryTable } from "../db/schema";
 import { eq, and, gte, lt, sql } from "drizzle-orm";
 import dayjs from "dayjs";
 import { openai } from "../utils/openai";
@@ -112,6 +112,22 @@ const getAdvice = async (payload: any) => {
   }
 };
 
+// Fungsi untuk menyimpan nasihat ke dalam history
+const saveAdviceToHistory = async (userId: number, advice: string) => {
+  // Hapus pesan advisor sebelumnya
+  await db
+    .delete(chatHistoryTable)  // Perbaikan: gunakan deleteFrom() untuk Drizzle ORM
+    .where(eq(chatHistoryTable.user_id, userId));
+
+  // Simpan nasihat baru
+  await db.insert(chatHistoryTable).values({
+    user_id: userId,
+    message: advice,
+    sender: "advisor",
+    created_at: new Date(),
+  });
+};
+
 export const advisorController = {
   getAdvice: async (req: Request, res: Response) => {
     // get user data
@@ -158,6 +174,9 @@ export const advisorController = {
       });
       return;
     }
+
+   // Save advice to chat history
+    await saveAdviceToHistory(user.id, advice);
 
     createResponse.success({
       res,

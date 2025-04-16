@@ -1,40 +1,65 @@
 import OpenAI from "openai";
-import fs from "fs";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-export const EXTENDED_CATEGORIES = [
+export const EXTENDED_CATEGORIES = Object.freeze([
   "food",
-  "transportation",
-  "utilities",
+  "transportation",,
   "entertainment",
   "shopping",
-  "healthcare",
   "education",
-  "others",
-] as const;
+  "health",
+  "gift",
+  "Parent",
+  "Freelance",
+  "salary",
+  "bonus",
+  "housing",
+  "internet",
+  "others"
+]);
 
-export type ExtendedCategory = (typeof EXTENDED_CATEGORIES)[number];
+export type ExtendedCategory = typeof EXTENDED_CATEGORIES[number];
+
 export const categories = EXTENDED_CATEGORIES.join(", ");
 
-export const processOCR = async (filePath: string) => {
-  console.log("✅ File found, converting to Base64...");
+interface ReceiptItem {
+  item_name: string;
+  category: ExtendedCategory;
+  quantity: number;
+  price: number;
+}
 
-  const imageBase64 = fs.readFileSync(filePath).toString("base64");
-  const imageData = `data:image/png;base64,${imageBase64}`;
+export interface ReceiptData {
+  store: string;
+  date: string;
+  items: ReceiptItem[];
+  Discount: number;
+  tax: number;
+  total: number;
+}
 
-  console.log("🚀 Sending image to OpenAI...");
+export const processOCRFromBuffer = async (buffer: Buffer): Promise<ReceiptData> => {
+  const logPrefix = "🔍 [OCR Processor]";
+
+  console.log(`${logPrefix} Buffer received, converting to base64...`);
+  const base64Image = buffer.toString("base64");
+  const imageData = `data:image/png;base64,${base64Image}`;
+
+  console.log(`${logPrefix} Sending image to OpenAI...`);
 
   const response = await openai.chat.completions.create({
     model: "gpt-4-turbo",
     messages: [
       {
         role: "system",
-        content: `Extract structured details from the receipt image. 
-Return a valid JSON object with:
+        content: `You are an expert OCR model that extracts receipt details.
+Please return a valid JSON object with the following format:
 {
   "store": "string",
   "date": "YYYY-MM-DD",
@@ -63,27 +88,27 @@ Return a valid JSON object with:
     temperature: 0.2,
   });
 
-  let extractedText = response.choices[0]?.message?.content?.trim() || "";
+  let rawText = response.choices[0]?.message?.content?.trim();
 
-  if (!extractedText) {
+  if (!rawText) {
+    console.error(`${logPrefix} ❌ No response received from OpenAI.`);
     throw new Error("No text extracted from image");
   }
 
-  console.log("📄 Extracted text received.");
+  console.log(`${logPrefix} Raw text received, attempting to parse JSON...`);
 
-  // Handle if response in code block markdown
-  const jsonMatch = extractedText.match(/```json\s*([\s\S]+?)\s*```/);
+  const jsonMatch = rawText.match(/```json\s*([\s\S]+?)\s*```/);
   if (jsonMatch) {
-    extractedText = jsonMatch[1];
+    rawText = jsonMatch[1];
   }
 
   try {
-    const parsed = JSON.parse(extractedText);
-    console.log("✅ Successfully parsed OCR result.");
+    const parsed: ReceiptData = JSON.parse(rawText);
+    console.log(`${logPrefix} ✅ Successfully parsed OCR result.`);
     return parsed;
-  } catch (error) {
-    console.error("❌ Failed to parse extracted JSON:");
-    console.error(extractedText); // Log full response for debugging
+  } catch (err) {
+    console.error(`${logPrefix} ❌ Failed to parse JSON:`);
+    console.error(rawText);
     throw new Error("Failed to parse extracted JSON");
   }
 };
