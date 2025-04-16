@@ -12,7 +12,7 @@ import {
   varchar
 } from "drizzle-orm/mysql-core";
 
-export const transactionCategoryEnums = mysqlEnum("category", [
+const transactionCategoryEnums = mysqlEnum("category", [
   // old category
   "food",
   "transportation",
