@@ -83,7 +83,7 @@ const getChatbotResponse = async (userId: number, userMessage: string) => {
         content: prompt,
       },
     ],
-    max_tokens: 150,
+    max_tokens: 50,
   });
 
   const chatbotReply = completion.choices[0].message.content ?? "Sorry, I couldn't generate a response.";
