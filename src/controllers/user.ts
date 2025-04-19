@@ -1,7 +1,7 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, gte, lt, lte, sql } from "drizzle-orm";
 import { Request, Response } from "express";
 import db from "../db";
-import { userFinancial, usersTable } from "../db/schema";
+import { transactionsTable, userFinancial, usersTable } from "../db/schema";
 import { gcsHelper } from "../utils/googleCloudStorageHelper";
 
 export const UserController = {
@@ -53,12 +53,40 @@ export const UserController = {
 
       try {
 
-        const thisMonthIncome = await db.execute(sql`
-            SELECT AVG(amount) AS average_income
-            FROM transactions
-            WHERE type = 0
-              AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
-              AND created_at < DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01');`);
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+        const thisMonthIncomeQuery = await db
+          .select({
+            this_month_income: sql<number>`SUM(${transactionsTable.amount})`
+          })
+          .from(transactionsTable)
+          .where(
+            and(
+              eq(transactionsTable.type, 0),
+              eq(transactionsTable.user_id, userId),
+              gte(transactionsTable.createdAt, startOfMonth),
+              lt(transactionsTable.createdAt, startOfNextMonth)
+            )
+          );
+
+          const thisMonthOutcomeQuery = await db
+          .select({
+            this_month_outcome: sql<number>`SUM(${transactionsTable.amount})`
+          })
+          .from(transactionsTable)
+          .where(
+            and(
+              eq(transactionsTable.type, 1),
+              eq(transactionsTable.user_id, userId),
+              gte(transactionsTable.createdAt, startOfMonth),
+              lt(transactionsTable.createdAt, startOfNextMonth)
+            )
+          );
+
+        // console.log(li)
+
         const {
           age,
           balance,
@@ -74,8 +102,6 @@ export const UserController = {
           updatedAt,
           finance_profile,
         } = user;
-
-        console.log(user, "USER");
 
         res.send({
           status: "success",
@@ -100,7 +126,8 @@ export const UserController = {
               total_income: finance_profile ? finance_profile.total_income || null : null,
               total_outcome: finance_profile ? finance_profile.total_outcome || null : null,
               risk_management: finance_profile ? finance_profile.risk_management || null : null,
-              this_month_income: (thisMonthIncome[0] as any)?.average_income || null,
+              this_month_income: thisMonthIncomeQuery[0]?.this_month_income || null,
+              this_month_outcome: thisMonthOutcomeQuery[0]?.this_month_outcome || null
             },
           }
         });
