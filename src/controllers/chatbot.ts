@@ -76,7 +76,7 @@ const getChatbotResponse = async (userId: number, userMessage: string) => {
     messages: [
       {
         role: "system",
-        content: "You are a financial assistant helping users manage money wisely, Keep the output in 1 paragraf.",
+        content: "You are a financial assistant helping users manage money wisely, Keep the output in 1 paragraf. and don't use any code block.",
       },
       {
         role: "user",
