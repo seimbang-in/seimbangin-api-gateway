@@ -69,14 +69,14 @@ const getChatbotResponse = async (userId: number, userMessage: string) => {
     ? `Here is the last advice from your financial advisor: "${lastAdvice.lastAdvisorMessage}".\n` +
       `Then, based on the following assistant history: "${lastAdvice.botHistory.join("\n")}", ` +
       `now the user says: "${userMessage}". Please continue the advice accordingly.`
-    : `User says: "${userMessage}". Start helping them with their financial goals.`;
+    : `User says: "${userMessage}". Start helping them with their financial goals, Keep the conversation in 1 paragraf.`;
 
   const completion = await openai.chat.completions.create({
     model: "gpt-4o",
     messages: [
       {
         role: "system",
-        content: "You are a financial assistant helping users manage money wisely. make sure to provide accurate and helpful advice. Keep the conversation in 1 paragraf.",
+        content: "You are a financial assistant helping users manage money wisely. make sure to provide accurate and helpful advice.",
       },
       {
         role: "user",
