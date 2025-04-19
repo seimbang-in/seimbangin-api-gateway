@@ -140,11 +140,10 @@ export const advisorController = {
       .where(eq(user.id, userFinancial.user_id));
 
     if (financeProfile.length === 0) {
-      createResponse.error({
+      createResponse.success({
         res,
         message: "Error Getting User Financial Profile",
-        status: 500,
-        data: {},
+        data: "Belum ngisi financial profile",
       });
       return;
     }
