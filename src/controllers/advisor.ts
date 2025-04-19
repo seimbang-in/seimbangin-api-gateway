@@ -139,6 +139,7 @@ export const advisorController = {
       .from(userFinancial)
       .where(eq(user.id, userFinancial.user_id));
 
+    // PERLUUUU DIUBAHH JIKA SUDAH FIXXXXED
     if (financeProfile.length === 0) {
       createResponse.success({
         res,
