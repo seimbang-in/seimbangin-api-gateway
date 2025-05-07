@@ -12,6 +12,7 @@ import authDevRouter from "./routes/dev/authDev.routes";
 import financialProfileRouter from "./routes/financialProfile.routes";
 import oauthRouter from "./routes/oauth.routes";
 import ocrRouter from "./routes/ocr.routes";
+import statisticRouter from "./routes/statistic.routes";
 import transactionRouter from "./routes/transaction.routes";
 import userRouter from "./routes/user.routes";
 import { createResponse } from "./utils/response";
@@ -42,6 +43,7 @@ app.use("/advisor", advisorRouter);
 app.use("/ocr", ocrRouter);
 app.use('/articles', articleRouter);
 app.use("/chatbot", chatbotRoutes);
+app.use("/statistic/", statisticRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.render("home", {
