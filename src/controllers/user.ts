@@ -31,6 +31,7 @@ export const UserController = {
           birth_date: usersTable.birth_date,
           createdAt: usersTable.createdAt,
           updatedAt: usersTable.updatedAt,
+          phone_number: usersTable.phone,
           finance_profile: {
             monthly_income: userFinancial.monthly_income,
             current_savings: userFinancial.current_savings,
@@ -101,6 +102,7 @@ export const UserController = {
           username,
           updatedAt,
           finance_profile,
+          phone_number,
         } = user;
 
         res.send({
@@ -118,6 +120,7 @@ export const UserController = {
             birth_date: birth_date || null,
             created_at: createdAt || null,
             updated_at: updatedAt || null,
+            phone_number: phone_number || null,
             finance_profile: {
               monthly_income: finance_profile ? finance_profile.monthly_income || null : null,
               current_savings: finance_profile ? finance_profile.current_savings || null : null,
