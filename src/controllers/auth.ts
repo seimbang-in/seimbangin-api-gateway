@@ -58,13 +58,16 @@ const authController = {
           updatedAt: new Date(),
         });
       } catch (error) {
+        console.error("Insert user error:", error);
         createResponse.error({
           res,
           status: 500,
           message: "Error occurred while inserting the user",
+          data: error instanceof Error ? error.message : String(error),
         });
         return;
       }
+      
 
       // create user financial profile
       createResponse.success({
