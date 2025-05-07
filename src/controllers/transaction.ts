@@ -91,7 +91,7 @@ export const transactionController = {
       return;
     }
 
-    const { type, description, items, category } = req.body;
+    const { type, description, items, category, name } = req.body;
 
 
     // Validasi Items
@@ -102,6 +102,16 @@ export const transactionController = {
         message: "Items must be an array and cannot be empty",
       });
 
+      return;
+    }
+
+    // validate transaction name
+    if (typeof name !== "string" || name.length === 0) {
+      createResponse.error({
+        res,
+        status: 400,
+        message: "Transaction name must be a string and cannot be empty",
+      });
       return;
     }
 
@@ -143,6 +153,7 @@ export const transactionController = {
         .insert(transactionsTable)
         .values({
           user_id: req.user.id,
+          name: name || "Transaction",
           type,
           description,
           category: category || "others",
