@@ -38,6 +38,37 @@ const authController = {
       return;
     }
 
+    // check if phone already exists
+    const phoneExists = await db
+      .select()
+      .from(usersTable)
+      .where(sql`${usersTable.phone} = ${req.body.phone}`);
+
+    if (phoneExists.length > 0) {
+      createResponse.error({
+        res,
+        status: 400,
+        message: "Phone already exists",
+      });
+      return;
+
+    }
+
+    // check if username already exists
+    const usernameExists = await db
+      .select()
+      .from(usersTable)
+      .where(sql`${usersTable.username} = ${req.body.username}`);
+
+    if (usernameExists.length > 0) {
+      createResponse.error({
+        res,
+        status: 400,
+        message: "Username already exists",
+      });
+      return;
+    }
+
     // destructure the required fields
     const { full_name, email, password, username, phone } = req.body;
 
@@ -67,7 +98,7 @@ const authController = {
         });
         return;
       }
-      
+
 
       // create user financial profile
       createResponse.success({
