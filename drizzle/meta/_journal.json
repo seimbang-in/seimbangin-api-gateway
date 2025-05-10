@@ -204,6 +204,20 @@
       "when": 1744721243155,
       "tag": "0028_typical_tomas",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1746848861821,
+      "tag": "0029_light_kingpin",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "5",
+      "when": 1746849032998,
+      "tag": "0030_cloudy_oracle",
+      "breakpoints": true
     }
   ]
 }
