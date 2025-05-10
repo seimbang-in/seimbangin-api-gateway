@@ -37,13 +37,24 @@ export const financialProfileController = {
       risk_management,
     } = req.body;
 
+    // check if payload have current_savings & debt then convert to decimal
+    let parsedCurrentSavings = current_savings;
+    if (current_savings) {
+      parsedCurrentSavings = parseFloat(current_savings);
+    }
+
+    let parsedDebt = debt;
+    if (debt) {
+      parsedDebt = parseFloat(debt);
+    }
+
     try {
       await db
         .update(userFinancial)
         .set({
           monthly_income,
-          current_savings,
-          debt,
+          current_savings: parsedCurrentSavings,
+          debt: parsedDebt,
           financial_goals,
           risk_management,
         })
@@ -64,7 +75,7 @@ export const financialProfileController = {
       createResponse.error({
         res,
         status: 500,
-        message: "An error occurred while creating the financial profile",
+        message: "An error occurred while creating the financial profile" + error,
       });
     }
   },
