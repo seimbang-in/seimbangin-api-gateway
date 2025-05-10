@@ -39,6 +39,8 @@ const oauthController = {
       email: data.email,
       password: "", // karena OAuth
       profilePicture: data.profilePicture ?? null,
+      role: 0, // Default role is user (0)
+      balance: "0.0", // Default balance
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -81,6 +83,14 @@ const oauthController = {
         data: {
           token,
           expiresIn,
+          user: {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            full_name: user.full_name,
+            role: user.role,
+            profilePicture: user.profilePicture,
+          }
         },
       });
     } catch (error) {
