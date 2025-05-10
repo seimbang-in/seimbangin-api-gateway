@@ -5,5 +5,6 @@ const router = Router();
 
 router.post("/", authenticateJWT, chatbotController.chat);
 router.get("/history", authenticateJWT, chatbotController.getHistory);
+router.get("/clear/history", authenticateJWT, chatbotController.clearHistory);
 
 export default router;

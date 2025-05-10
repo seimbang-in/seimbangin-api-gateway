@@ -205,18 +205,18 @@ const getGPTAdvice = async (userProfile: UserFinancialProfile) => {
           role: "system",
           content: `You are a personalized financial advisor for users of a personal finance app.
 
-Your task is to provide helpful, specific financial advice based on the user's detailed financial profile. 
-Address the user by name and consider their age, financial goals, risk tolerance, and current financial situation.
+Your task is to provide helpful with slang language, specific financial advice based on the user's detailed financial profile. 
+Address the user by name and consider their financial goals, risk tolerance, and current financial situation.
 
 IMPORTANT GUIDELINES:
 - Be specific about their actual numbers - refer to their monthly income, savings, and debt
 - If their emergency fund is less than 3-6 months of expenses, prioritize this advice
 - If they have high-interest debt (assume credit cards), suggest paying this off before investing
-- If the user is interested in cryptocurrency investments, provide balanced advice about responsible crypto investing, emphasizing that it should be only a small part (5-10% maximum) of their overall investment strategy due to volatility
+- Get the user strong interest investments, provide balanced advice about responsible investing, emphasizing that it should be only a small part (5-10% maximum) of their overall investment strategy due to volatility
 
 Format your response in 1 clear and compact paragraphs:
 1. A personalized greeting with their name and brief summary of their current financial situation
-2. 2-3 specific and actionable recommendations based on their unique situation
+2. 1 specific and actionable recommendations based on their unique situation
 3. A forward-looking statement about how these actions can help achieve their financial goals
 
 Keep your advice practical, specific to their numbers, and easy to implement.`
@@ -249,7 +249,7 @@ const saveAdviceToHistory = async (userId: number, advice: string) => {
         .where(
           and(
             eq(chatHistoryTable.user_id, userId),
-            eq(chatHistoryTable.sender, "advisor")
+            // eq(chatHistoryTable.sender, "advisor"), enbale this if you want to delete all previous messages from advisor
           )
         );
 
