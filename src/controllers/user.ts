@@ -213,8 +213,22 @@ export const UserController = {
   update: async (req: Request, res: Response) => {
     const userId = req.user.id;
 
-    const { full_name, age, balance, username, email, university, gender, birth_date, phone } = req.body;
+    const { full_name,  balance, username, email, university, gender, birth_date, phone } = req.body;
 
+    // Hitung umur otomatis dari birth_date
+    let age: number | null = null;
+    if (birth_date) {
+      const birth = new Date(birth_date);
+      const today = new Date();
+      age = today.getFullYear() - birth.getFullYear();
+      const isBeforeBirthday =
+      today.getMonth() < birth.getMonth() ||
+      (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate());
+      
+      if (isBeforeBirthday) {
+        age--;
+      }
+    }
     const payload = {
       full_name,
       age,
