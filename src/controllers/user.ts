@@ -47,17 +47,12 @@ export const UserController = {
         .where(eq(usersTable.id, userId))
         .then((rows) => rows[0] || {});
 
-      // const thisMonthIncome = await db.select().from(transactionsTable).where({
-      //   user_id: userId,
-      //   type: "income",
-      // });
-
       try {
-
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
+        // Query for this month's income
         const thisMonthIncomeQuery = await db
           .select({
             this_month_income: sql<number>`SUM(${transactionsTable.amount})`
@@ -72,7 +67,8 @@ export const UserController = {
             )
           );
 
-          const thisMonthOutcomeQuery = await db
+        // Query for this month's outcome
+        const thisMonthOutcomeQuery = await db
           .select({
             this_month_outcome: sql<number>`SUM(${transactionsTable.amount})`
           })
@@ -86,7 +82,31 @@ export const UserController = {
             )
           );
 
-        // console.log(li)
+        // Query for total income (all time)
+        const totalIncomeQuery = await db
+          .select({
+            total_income: sql<number>`SUM(${transactionsTable.amount})`
+          })
+          .from(transactionsTable)
+          .where(
+            and(
+              eq(transactionsTable.type, 0),
+              eq(transactionsTable.user_id, userId)
+            )
+          );
+
+        // Query for total outcome (all time)
+        const totalOutcomeQuery = await db
+          .select({
+            total_outcome: sql<number>`SUM(${transactionsTable.amount})`
+          })
+          .from(transactionsTable)
+          .where(
+            and(
+              eq(transactionsTable.type, 1),
+              eq(transactionsTable.user_id, userId)
+            )
+          );
 
         const {
           age,
@@ -126,18 +146,18 @@ export const UserController = {
               current_savings: finance_profile ? finance_profile.current_savings || null : null,
               debt: finance_profile ? finance_profile.debt || null : null,
               financial_goals: finance_profile ? finance_profile.financial_goals || null : null,
-              total_income: finance_profile ? finance_profile.total_income || null : null,
-              total_outcome: finance_profile ? finance_profile.total_outcome || null : null,
               risk_management: finance_profile ? finance_profile.risk_management || null : null,
-              this_month_income: thisMonthIncomeQuery[0]?.this_month_income || null,
-              this_month_outcome: thisMonthOutcomeQuery[0]?.this_month_outcome || null
+              total_income: totalIncomeQuery[0]?.total_income || 0,
+              total_outcome: totalOutcomeQuery[0]?.total_outcome || 0,
+              this_month_income: thisMonthIncomeQuery[0]?.this_month_income || 0,
+              this_month_outcome: thisMonthOutcomeQuery[0]?.this_month_outcome || 0
             },
           }
         });
       } catch (error) {
         res.send({
           status: "error",
-          message: "An error occurred while fetching the user's income",
+          message: "An error occurred while fetching the user's financial data",
         });
       }
     } catch (error) {
